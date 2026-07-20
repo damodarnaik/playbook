@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Straw Hat HQ — Voyage Log, Vol. ∞ (A One Piece Fan Saga)</title>
+<meta name="description" content="A fan-made One Piece voyage log laid out like a manga volume: crew manifest, Devil Fruit encyclopedia, the Grand Line, and words from the sea.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%2314110B'/><circle cx='8' cy='8' r='5' fill='%23F4C430'/><rect x='2' y='7' width='12' height='2.4' fill='%23E23B2E'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Lilita+One&family=Pirata+One&family=Spectral:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F1E6CB; --paper2:#FBF3DE; --paper3:#E7D6AE;
+  --ink:#14110B; --ink2:#2A2418;
+  --red:#E23B2E; --red-d:#A8241A;
+  --straw:#F4C430; --straw-d:#CE9E00;
+  --sea:#1E3A5F; --sea-d:#102338;
+  --foam:#CDEDE6; --rose:#C0396B;
+  --tone:rgba(20,17,11,.16);
+  --disp:'Lilita One',system-ui,sans-serif;
+  --sfx:'Bangers',system-ui,sans-serif;
+  --pirate:'Pirata One',cursive;
+  --serif:'Spectral',Georgia,serif;
+  --ui:system-ui,-apple-system,'Segoe UI',sans-serif;
+  --rail:94px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--ui);color:var(--ink);background:var(--paper);
+  background-image:
+    radial-gradient(var(--tone) 1px,transparent 1.4px),
+    radial-gradient(rgba(255,255,255,.35) 1px,transparent 1.4px);
+  background-size:7px 7px,11px 11px;background-position:0 0,3px 4px;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+::selection{background:var(--red);color:#fff}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+img{display:block;max-width:100%}
+.disp{font-family:var(--disp)} .sfx{font-family:var(--sfx)} .pirate{font-family:var(--pirate)} .serif{font-family:var(--serif)}
+
+/* ===================== RAIL (vertical nav) ===================== */
+.rail{position:fixed;top:0;left:0;bottom:0;width:var(--rail);background:var(--ink);
+  border-right:4px solid var(--ink);z-index:90;display:flex;flex-direction:column;align-items:center;
+  padding:14px 0;gap:14px;color:var(--paper)}
+.rope{position:absolute;left:13px;top:0;bottom:0;width:3px;
+  background:repeating-linear-gradient(var(--straw) 0 7px,transparent 7px 13px);opacity:.5}
+.rope-ship{position:absolute;left:14px;top:0;transform:translate(-50%,0);font-size:18px;
+  filter:drop-shadow(0 1px 0 #000);transition:top .12s linear;z-index:2}
+.r-logo{width:54px;height:54px;border:3px solid var(--straw);border-radius:50%;background:var(--sea-d);
+  display:grid;place-items:center;position:relative;overflow:hidden;flex:0 0 auto;z-index:2}
+.r-logo svg{width:74%} .r-logo img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:4px}
+.r-vol{writing-mode:vertical-rl;font-family:var(--pirate);font-size:15px;letter-spacing:.18em;color:var(--straw);z-index:2}
+.r-nav{display:flex;flex-direction:column;gap:8px;flex:1;justify-content:center;z-index:2}
+.r-nav a{writing-mode:vertical-rl;text-orientation:mixed;font-family:var(--disp);font-size:13px;
+  letter-spacing:.12em;padding:12px 6px;border-radius:8px;color:#cdbf9c;position:relative;transition:.2s}
+.r-nav a .n{font-family:var(--sfx);font-size:11px;color:var(--red);margin-bottom:6px;writing-mode:vertical-rl}
+.r-nav a:hover{color:#fff;background:rgba(244,196,48,.12)}
+.r-nav a.on{color:var(--ink);background:var(--straw)}
+.r-nav a.on .n{color:var(--red-d)}
+.r-foot{writing-mode:vertical-rl;font-family:var(--ui);font-size:9px;letter-spacing:.3em;color:#7d7253;z-index:2}
+
+/* ===================== STAGE ===================== */
+.stage{margin-left:var(--rail);position:relative}
+section{scroll-margin-top:8px}
+
+/* manga folio (page header) */
+.folio{display:flex;align-items:center;gap:16px;margin:0 0 26px;position:relative}
+.folio .bar{flex:1;background:var(--ink);color:var(--paper);font-family:var(--pirate);
+  font-size:clamp(22px,3vw,34px);letter-spacing:.04em;padding:8px 22px;transform:skewX(-7deg);
+  border:3px solid var(--ink);box-shadow:5px 5px 0 var(--red)}
+.folio .bar span{display:inline-block;transform:skewX(7deg)}
+.folio .bar em{font-style:normal;color:var(--straw)}
+.folio .pg{width:54px;height:54px;flex:0 0 auto;background:var(--red);color:#fff;border:3px solid var(--ink);
+  border-radius:50%;display:grid;place-items:center;font-family:var(--sfx);font-size:22px;
+  box-shadow:4px 4px 0 var(--ink);transform:rotate(-6deg)}
+.pad{width:min(1180px,92vw);margin:0 auto}
+
+/* ===================== COVER ===================== */
+.cover{height:100svh;min-height:620px;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.sky{position:absolute;inset:0;background:linear-gradient(180deg,#1c1d44 0%,#43215f 34%,#9c2f55 60%,#d8542f 80%,#f08a3c 100%)}
+.sun{position:absolute;left:50%;top:42%;width:340px;height:340px;transform:translate(-50%,-50%);
+  border-radius:50%;background:radial-gradient(circle,#ffe79a 0 38%,#ffcf52 40% 60%,transparent 62%);
+  box-shadow:0 0 90px 30px rgba(255,200,90,.4)}
+.sun::after{content:"";position:absolute;inset:-40%;border-radius:50%;
+  background:repeating-conic-gradient(from 0deg,rgba(255,230,150,.25) 0 2deg,transparent 2deg 7deg);animation:spin 90s linear infinite}
+.cloud{position:absolute;background:rgba(255,240,220,.85);border-radius:50px;filter:blur(.3px);opacity:.85}
+.cloud::before,.cloud::after{content:"";position:absolute;background:inherit;border-radius:50%}
+.c1{width:160px;height:34px;top:18%;left:-160px;animation:drift 46s linear infinite}
+.c1::before{width:70px;height:70px;top:-30px;left:24px}.c1::after{width:50px;height:50px;top:-18px;left:84px}
+.c2{width:120px;height:26px;top:30%;left:-120px;animation:drift 60s linear infinite 8s;opacity:.6}
+.c2::before{width:54px;height:54px;top:-24px;left:18px}.c2::after{width:40px;height:40px;top:-14px;left:62px}
+.c3{width:200px;height:40px;top:12%;left:-200px;animation:drift 70s linear infinite 20s;opacity:.5}
+.c3::before{width:80px;height:80px;top:-36px;left:34px}.c3::after{width:60px;height:60px;top:-22px;left:110px}
+.sea{position:absolute;left:0;right:0;bottom:0;height:34%;background:linear-gradient(180deg,#173a55,#0c2236)}
+.sea .wv{position:absolute;left:0;width:200%;bottom:0;height:60px}
+.sea .wv svg{width:100%;height:100%;display:block}
+.wv.a{animation:drift 14s linear infinite;opacity:.5;bottom:34px}
+.wv.b{animation:drift 9s linear infinite reverse;bottom:14px;opacity:.8}
+.wv.c{animation:drift 7s linear infinite;bottom:-4px}
+.ship-sil{position:absolute;left:50%;bottom:30%;transform:translateX(-50%);width:230px;animation:bob 5s ease-in-out infinite;z-index:3}
+.emblem{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);width:200px;z-index:4;animation:floaty 6s ease-in-out infinite;
+  filter:drop-shadow(0 8px 0 rgba(0,0,0,.35))}
+.emblem svg,.emblem img{width:100%}
+.masthead{position:relative;z-index:6;display:flex;justify-content:space-between;align-items:center;
+  background:var(--ink);color:var(--paper);font-family:var(--ui);font-size:11px;letter-spacing:.22em;
+  padding:8px clamp(16px,4vw,46px);text-transform:uppercase;border-bottom:3px solid var(--straw)}
+.masthead b{font-family:var(--pirate);font-size:18px;letter-spacing:.06em;color:var(--straw);text-transform:none}
+.cover-core{position:relative;z-index:6;flex:1;display:flex;flex-direction:column;justify-content:center;
+  align-items:center;text-align:center;padding:10px 16px 0}
+.kanban{font-family:var(--sfx);color:var(--foam);letter-spacing:.3em;font-size:clamp(13px,2vw,18px);
+  -webkit-text-stroke:1px var(--ink);text-shadow:3px 3px 0 var(--ink);margin-bottom:6px}
+.cover-h{font-family:var(--disp);line-height:.82;color:#fff;-webkit-text-stroke:3px var(--ink);
+  text-shadow:7px 7px 0 var(--red);font-size:clamp(54px,12vw,150px)}
+.cover-h .y{color:var(--straw);text-shadow:7px 7px 0 var(--ink)}
+.cover-sub{font-family:var(--pirate);color:var(--paper);font-size:clamp(20px,3.4vw,40px);
+  -webkit-text-stroke:1.5px var(--ink);text-shadow:3px 3px 0 var(--ink);margin-top:4px}
+.chap-bar{position:relative;z-index:6;background:var(--ink);color:var(--paper);border-top:4px solid var(--ink);
+  display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;
+  padding:12px clamp(16px,4vw,46px);font-family:var(--pirate);font-size:clamp(18px,2.6vw,30px);letter-spacing:.03em}
+.chap-bar .l{display:flex;align-items:center;gap:14px}
+.chap-bar .l i{width:12px;height:12px;background:var(--red);border-radius:50%;animation:blink 1.3s steps(2) infinite}
+.chap-bar .r{font-family:var(--sfx);color:var(--straw);letter-spacing:.1em;font-size:clamp(14px,2vw,20px);animation:flick 3.5s steps(1) infinite}
+.turn{position:absolute;left:50%;bottom:74px;transform:translateX(-50%);z-index:7;color:#fff;
+  font-family:var(--sfx);letter-spacing:.16em;font-size:14px;-webkit-text-stroke:.6px var(--ink);text-align:center;animation:bob 1.8s ease-in-out infinite}
+.turn b{display:block;font-size:24px}
+
+/* ===================== NEWSPAPER (Big News) ===================== */
+.paper{background:var(--paper2);border-top:4px solid var(--ink);border-bottom:4px solid var(--ink);
+  display:flex;align-items:stretch;position:relative;overflow:hidden}
+.paper .mast{flex:0 0 auto;background:var(--ink);color:var(--paper);display:flex;align-items:center;gap:10px;
+  padding:0 18px;font-family:var(--pirate);font-size:24px;letter-spacing:.03em;position:relative;z-index:2;
+  border-right:4px solid var(--ink)}
+.paper .mast small{display:block;font-family:var(--ui);font-size:9px;letter-spacing:.2em;color:var(--straw)}
+.paper .mast::after{content:"";position:absolute;right:-12px;top:0;bottom:0;width:12px;
+  background:radial-gradient(circle at 0 6px,transparent 6px,var(--ink) 6px) 0 0/12px 12px}
+.news-track{display:flex;width:max-content;animation:drift 40s linear infinite;align-items:center}
+.paper:hover .news-track{animation-play-state:paused}
+.news-track span{font-family:var(--serif);font-weight:600;font-size:15px;color:var(--ink);white-space:nowrap;
+  padding:13px 26px;display:flex;align-items:center;gap:18px;border-right:2px dotted rgba(20,17,11,.3)}
+.news-track span b{font-family:var(--sfx);color:var(--red-d);letter-spacing:.06em;font-size:14px}
+
+/* ===================== PAGE 01 — CREW SPREAD ===================== */
+.page{padding:64px 0}
+.spread{display:flex;flex-direction:column;gap:14px}
+.row-top{display:grid;grid-template-columns:1.9fr 1fr;gap:14px;min-height:440px}
+.row-bot{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;min-height:300px}
+.panel{background:var(--paper2);border:4px solid var(--ink);border-radius:6px;position:relative;
+  box-shadow:7px 7px 0 var(--ink);overflow:hidden}
+.panel .pno{position:absolute;top:8px;right:10px;font-family:var(--sfx);font-size:13px;color:var(--ink);
+  background:var(--straw);border:2px solid var(--ink);border-radius:5px;padding:1px 7px;z-index:5}
+.halftone{position:absolute;inset:0;background:radial-gradient(var(--tone) 1.4px,transparent 1.6px);
+  background-size:8px 8px;opacity:.6;pointer-events:none}
+.speedlines{position:absolute;inset:-30%;background:repeating-conic-gradient(from 0deg,transparent 0 3.4deg,rgba(20,17,11,.13) 3.4deg 4.4deg);
+  pointer-events:none}
+
+/* captain flip */
+.cap{perspective:1400px;cursor:pointer;background:var(--paper2)}
+.cap .hint{position:absolute;left:10px;bottom:10px;z-index:6;font-family:var(--sfx);font-size:13px;letter-spacing:.08em;
+  color:var(--ink);background:var(--straw);border:2px solid var(--ink);border-radius:6px;padding:3px 9px}
+.flip{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.4,.1,.2,1)}
+.cap.flipped .flip{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column}
+.face.front{align-items:center;justify-content:center;padding:26px;text-align:center}
+.face.front .em{width:150px;position:relative;z-index:2;filter:drop-shadow(4px 5px 0 rgba(0,0,0,.3))}
+.face.front .nm{font-family:var(--disp);font-size:clamp(28px,3.4vw,46px);line-height:.9;margin-top:14px;position:relative;z-index:2;
+  -webkit-text-stroke:1.5px var(--ink);color:#fff;text-shadow:4px 4px 0 var(--red)}
+.face.front .rl{font-family:var(--sfx);letter-spacing:.14em;color:var(--ink);background:var(--straw);border:2px solid var(--ink);
+  border-radius:6px;padding:3px 12px;margin-top:10px;position:relative;z-index:2}
+.face.back{transform:rotateY(180deg);background:var(--red);color:#fff;align-items:center;justify-content:center;
+  text-align:center;padding:30px;gap:14px}
+.face.back .wt{font-family:var(--pirate);font-size:42px;color:var(--straw);-webkit-text-stroke:1.5px var(--ink);line-height:.8}
+.face.back .dream{font-family:var(--serif);font-style:italic;font-size:clamp(18px,2.2vw,26px);line-height:1.25;max-width:340px;
+  text-shadow:2px 2px 0 var(--red-d)}
+.face.back .bty{font-family:var(--disp);font-size:clamp(26px,3vw,40px);color:var(--straw);-webkit-text-stroke:1.5px var(--ink)}
+.bubble{position:absolute;z-index:8;background:#fff;border:4px solid var(--ink);border-radius:22px;
+  padding:14px 18px;font-family:var(--disp);font-size:clamp(15px,1.7vw,21px);line-height:1.05;max-width:230px;
+  box-shadow:5px 5px 0 var(--ink);transform:rotate(-3deg)}
+.bubble::after{content:"";position:absolute;width:22px;height:22px;background:#fff;border-right:4px solid var(--ink);
+  border-bottom:4px solid var(--ink)}
+.bubble.tl{top:-22px;left:-14px}.bubble.tl::after{left:30px;bottom:-14px;transform:rotate(45deg)}
+.bubble .who{display:block;font-family:var(--pirate);color:var(--red-d);font-size:16px;margin-top:6px}
+
+/* roster */
+.rost{display:flex;flex-direction:column}
+.rost .hd{font-family:var(--pirate);font-size:24px;background:var(--ink);color:var(--straw);padding:8px 14px;
+  display:flex;justify-content:space-between;align-items:center;letter-spacing:.04em}
+.rost .hd small{font-family:var(--sfx);font-size:12px;color:#fff;letter-spacing:.1em}
+.rost ul{list-style:none;overflow-y:auto;flex:1;padding:6px}
+.rost li{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;padding:8px 8px;border-radius:6px;
+  border-left:4px solid transparent;transition:.18s;cursor:pointer}
+.rost li:hover{background:var(--paper3);transform:translateX(3px)}
+.rost li.pin{border-left-color:var(--red);background:rgba(226,59,46,.08)}
+.rost .ic{width:34px;height:34px;border:3px solid var(--ink);border-radius:50%;display:grid;place-items:center;
+  font-family:var(--disp);font-size:16px;color:#fff}
+.rost .nm{font-family:var(--disp);font-size:15px;line-height:1}
+.rost .nm small{display:block;font-family:var(--ui);font-weight:600;font-size:10px;letter-spacing:.08em;color:#7a6c47;text-transform:uppercase}
+.rost .bt{font-family:var(--sfx);font-size:13px;color:var(--red-d);white-space:nowrap}
+.rost li.pin .bt::after{content:" 📌"}
+
+/* manifest */
+.mani{padding:18px 20px;display:flex;flex-direction:column}
+.mani h3{font-family:var(--pirate);font-size:26px;color:var(--ink);margin-bottom:8px}
+.mani .log{list-style:none;flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px}
+.mani .log li{display:flex;align-items:baseline;gap:8px;font-family:var(--serif);font-weight:600;font-size:15px}
+.mani .log li .k{color:var(--ink2)} .mani .log li .dots{flex:1;border-bottom:2px dotted rgba(20,17,11,.4);transform:translateY(-3px)}
+.mani .log li .v{font-family:var(--disp);font-size:20px;color:var(--red-d)}
+.mani .go{margin-top:10px;overflow:hidden;white-space:nowrap;border-top:3px solid var(--ink);padding-top:8px}
+.mani .go span{display:inline-block;font-family:var(--sfx);font-size:22px;letter-spacing:.1em;color:var(--ink);
+  -webkit-text-stroke:.6px var(--ink);animation:drift 9s linear infinite;padding-right:30px}
+.mani .go span b{color:var(--red)}
+
+/* fruit teaser */
+.fteaser{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;gap:10px;
+  background:radial-gradient(circle at 50% 35%,#5a2f7d,#241038)}
+.fteaser .orb{width:96px;height:96px;border-radius:50%;border:4px solid var(--ink);position:relative;overflow:hidden;
+  background:radial-gradient(circle at 38% 32%,#9a5fc0,#3a1f55);box-shadow:inset 0 0 0 4px rgba(0,0,0,.25);animation:floaty 4s ease-in-out infinite}
+.fteaser .orb::before{content:"";position:absolute;inset:0;background:repeating-radial-gradient(circle at 50% 50%,rgba(95,212,230,.6) 0 3px,transparent 3px 10px)}
+.fteaser .orb img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:5px}
+.fteaser .lab{font-family:var(--sfx);letter-spacing:.14em;color:var(--foam);font-size:13px}
+.fteaser .fn{font-family:var(--pirate);font-size:26px;color:var(--straw);line-height:.9}
+.fteaser a{font-family:var(--disp);font-size:14px;letter-spacing:.04em;background:var(--straw);color:var(--ink);
+  border:3px solid var(--ink);border-radius:8px;padding:7px 14px;box-shadow:4px 4px 0 var(--ink);transition:.14s}
+.fteaser a:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink)}
+
+/* impact panel */
+.impact{background:var(--ink);display:grid;place-items:center;text-align:center;overflow:hidden}
+.impact .don{font-family:var(--sfx);font-size:clamp(70px,11vw,150px);color:var(--red);-webkit-text-stroke:4px var(--paper);
+  transform:rotate(-9deg);line-height:.8;text-shadow:8px 8px 0 #000;position:relative;z-index:2}
+.impact .cap{position:relative;z-index:2;font-family:var(--serif);font-style:italic;color:var(--paper);font-size:14px;
+  max-width:230px;margin-top:6px}
+.impact .halftone{background:radial-gradient(rgba(244,196,48,.25) 1.4px,transparent 1.6px);background-size:9px 9px;opacity:.8}
+
+/* ===================== PAGE 02 — DEVIL FRUIT BOOK ===================== */
+.book{display:grid;grid-template-columns:1fr 1fr;gap:0;border:4px solid var(--ink);border-radius:8px;overflow:hidden;
+  box-shadow:9px 9px 0 var(--ink);background:var(--paper2);position:relative}
+.book::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:34px;transform:translateX(-50%);z-index:3;pointer-events:none;
+  background:linear-gradient(90deg,transparent,rgba(20,17,11,.22) 45%,rgba(20,17,11,.32) 50%,rgba(20,17,11,.22) 55%,transparent)}
+.pg-left,.pg-right{padding:26px;position:relative;min-height:420px}
+.pg-left{background:linear-gradient(180deg,#dfeef0,#bcd9d6);border-right:2px solid rgba(20,17,11,.2);overflow:hidden}
+.pg-left .ttl{font-family:var(--pirate);font-size:24px;color:var(--sea-d);text-align:center}
+.stage2{position:relative;flex:1;height:240px;margin:14px 0;border:3px solid var(--ink);border-radius:8px;overflow:hidden;
+  background:linear-gradient(180deg,#bfe0e6 0 55%,#1d4a63 55% 100%)}
+.stage2 .glow{position:absolute;left:50%;top:42%;width:120px;height:120px;transform:translate(-50%,-50%);border-radius:50%;
+  background:radial-gradient(circle,var(--gc,rgba(244,196,48,.7)),transparent 70%);transition:.4s}
+.stage2 .drop{position:absolute;left:50%;top:42%;width:104px;height:104px;transform:translate(-50%,140%) scale(.5);opacity:0}
+.stage2 .drop.go{animation:drop .95s cubic-bezier(.2,1.35,.3,1) forwards}
+.stage2 .drop .orb{width:100%;height:100%;border-radius:50%;border:4px solid var(--ink);position:relative;overflow:hidden;
+  background:radial-gradient(circle at 38% 32%,#9a5fc0,#3a1f55);box-shadow:inset 0 0 0 4px rgba(0,0,0,.25)}
+.stage2 .drop .orb::before{content:"";position:absolute;inset:0;background:repeating-radial-gradient(circle at 50% 50%,rgba(95,212,230,.65) 0 3px,transparent 3px 10px)}
+.stage2 .drop .orb img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:5px}
+.stage2 .wav{position:absolute;left:0;right:0;bottom:0;height:46%}
+.stage2 .wav svg{position:absolute;bottom:0;width:200%;height:100%}
+.stage2 .wav .a{animation:drift 8s linear infinite;opacity:.7}
+.stage2 .wav .b{animation:drift 6s linear infinite reverse;bottom:-6px}
+.spark{position:absolute;inset:0;pointer-events:none}
+.spark i{position:absolute;left:50%;top:42%;width:9px;height:9px;background:var(--straw);border:2px solid var(--ink);border-radius:50%}
+.pull-btn{display:block;margin:0 auto;font-family:var(--disp);font-size:18px;letter-spacing:.04em;background:var(--red);color:#fff;
+  border:3px solid var(--ink);border-radius:10px;padding:11px 22px;box-shadow:5px 5px 0 var(--ink);transition:.14s}
+.pull-btn:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 var(--ink)}
+.pull-btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+.pg-right .kicker{font-family:var(--sfx);letter-spacing:.16em;color:var(--red-d);font-size:14px}
+.pg-right .fname{font-family:var(--pirate);font-size:clamp(30px,4vw,46px);color:var(--ink);line-height:.85;margin:4px 0 8px;min-height:48px}
+.pg-right .meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.badge{font-family:var(--disp);font-size:13px;letter-spacing:.06em;padding:4px 12px;border:3px solid var(--ink);border-radius:7px;color:var(--ink)}
+.pg-right .user{font-family:var(--disp);font-size:15px;color:var(--sea);margin-bottom:8px}
+.pg-right .power{font-family:var(--serif);font-size:16px;line-height:1.5;color:var(--ink2);min-height:74px}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px;padding-top:14px;border-top:2px dotted rgba(20,17,11,.35)}
+.chip{font-family:var(--ui);font-weight:700;font-size:11px;letter-spacing:.03em;padding:5px 10px;border:2px solid var(--ink);
+  border-radius:20px;background:var(--paper);transition:.14s}
+.chip:hover{background:var(--straw)} .chip.on{background:var(--ink);color:var(--straw)}
+
+/* ===================== PAGE 03 — GRAND LINE TIMELINE ===================== */
+.tl{position:relative;max-width:880px;margin:0 auto;padding:10px 0}
+.tl .spine{position:absolute;left:50%;top:0;bottom:0;width:5px;transform:translateX(-50%);
+  background:repeating-linear-gradient(var(--ink) 0 9px,transparent 9px 18px);opacity:.55}
+.tl .marker{position:absolute;left:50%;top:0;transform:translate(-50%,-50%);font-size:30px;z-index:4;
+  filter:drop-shadow(0 2px 0 #000);transition:top .1s linear}
+.tl-item{position:relative;width:50%;padding:14px 38px;opacity:0;transform:translateY(24px);transition:.6s cubic-bezier(.2,.7,.2,1)}
+.tl-item.in{opacity:1;transform:none}
+.tl-item:nth-child(odd){left:0;text-align:right}
+.tl-item:nth-child(even){left:50%}
+.tl-item .card{display:inline-block;background:var(--paper2);border:4px solid var(--ink);border-radius:8px;padding:14px 16px;
+  box-shadow:6px 6px 0 var(--ink);transform:rotate(var(--rot,-2deg));transition:.2s;max-width:330px;text-align:left}
+.tl-item .card:hover{transform:rotate(0) translateY(-4px)}
+.tl-item .card .idx{font-family:var(--sfx);color:var(--red-d);font-size:13px;letter-spacing:.1em}
+.tl-item .card h4{font-family:var(--disp);font-size:22px;line-height:.95;margin:2px 0 5px}
+.tl-item .card p{font-family:var(--serif);font-size:14px;line-height:1.45;color:var(--ink2)}
+.tl-item .pin2{position:absolute;top:24px;width:18px;height:18px;background:var(--red);border:3px solid var(--ink);border-radius:50%;z-index:3}
+.tl-item:nth-child(odd) .pin2{right:-9px} .tl-item:nth-child(even) .pin2{left:-9px}
+
+/* ===================== PAGE 04 — DIALOGUE ===================== */
+.dialogue{background:var(--paper2);border:4px solid var(--ink);border-radius:8px;box-shadow:8px 8px 0 var(--ink);
+  padding:42px 26px 30px;position:relative}
+.narr{position:absolute;top:-18px;left:24px;background:var(--ink);color:var(--paper);font-family:var(--serif);font-style:italic;
+  font-size:14px;padding:7px 16px;border:3px solid var(--ink);transform:rotate(-1.5deg)}
+.speech-row{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.spk{position:relative;background:#fff;border:4px solid var(--ink);border-radius:24px;padding:22px 20px 18px;
+  box-shadow:5px 5px 0 var(--ink);transition:.2s}
+.spk:hover{transform:translateY(-6px)}
+.spk .q{font-family:var(--disp);font-size:clamp(18px,2vw,25px);line-height:1.05}
+.spk .w{font-family:var(--pirate);color:var(--red-d);font-size:18px;margin-top:10px}
+.spk::after{content:"";position:absolute;bottom:-18px;width:26px;height:26px;background:#fff;border-right:4px solid var(--ink);border-bottom:4px solid var(--ink);transform:rotate(45deg)}
+.spk:nth-child(1)::after{left:30px}.spk:nth-child(2)::after{left:50%;margin-left:-13px}.spk:nth-child(3)::after{right:30px}
+
+/* ===================== BACK COVER (footer) ===================== */
+.backcover{background:var(--ink);color:var(--paper);position:relative;overflow:hidden;margin-top:30px;
+  border-top:6px double var(--straw)}
+.backcover .halftone{background:radial-gradient(rgba(244,196,48,.12) 1.4px,transparent 1.6px);background-size:9px 9px;opacity:.7}
+.bc-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:40px;padding:64px 0 40px;position:relative;z-index:2}
+.bc-brand .logo{display:flex;align-items:center;gap:14px}
+.bc-brand .logo .b{width:60px;height:60px;border:3px solid var(--straw);border-radius:50%;background:var(--sea-d);position:relative;overflow:hidden;display:grid;place-items:center}
+.bc-brand .logo .b svg{width:74%} .bc-brand .logo .b img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:5px}
+.bc-brand .logo b{font-family:var(--disp);font-size:30px;color:var(--straw);letter-spacing:.03em}
+.bc-brand .logo b span{color:var(--red)}
+.bc-brand p{font-family:var(--serif);font-size:15px;line-height:1.6;color:#cdbf9c;max-width:340px;margin:16px 0 18px}
+.bc-brand .oath{font-family:var(--sfx);letter-spacing:.1em;color:var(--foam);font-size:15px}
+.bc-col h5{font-family:var(--pirate);font-size:22px;color:var(--straw);margin-bottom:14px}
+.bc-col a{display:block;font-family:var(--serif);font-size:15px;color:#cdbf9c;padding:5px 0;transition:.18s}
+.bc-col a:hover{color:#fff;transform:translateX(4px)}
+.bc-sub{background:var(--paper2);color:var(--ink);border:4px solid var(--straw);border-radius:10px;padding:18px;position:relative;z-index:2;
+  box-shadow:6px 6px 0 #000;margin-top:8px}
+.bc-sub h5{font-family:var(--pirate);font-size:22px;color:var(--red-d);margin-bottom:8px}
+.bc-sub form{display:flex;gap:8px;flex-wrap:wrap}
+.bc-sub input{flex:1;min-width:160px;font-family:var(--ui);font-weight:700;font-size:14px;padding:10px 12px;border:3px solid var(--ink);border-radius:8px;background:#fff}
+.bc-sub input:focus{outline:none;border-color:var(--red)}
+.bc-sub button{font-family:var(--disp);font-size:14px;background:var(--ink);color:var(--straw);border:3px solid var(--ink);border-radius:8px;padding:10px 14px;transition:.14s}
+.bc-sub button:hover{background:var(--red);color:#fff}
+.bc-sub .ok{display:none;font-family:var(--sfx);color:var(--red-d);letter-spacing:.06em;font-size:18px}
+.bc-sub .ok.show{display:block;animation:slam .5s cubic-bezier(.2,1.6,.3,1)}
+.bc-bottom{display:flex;justify-content:space-between;align-items:flex-end;gap:30px;flex-wrap:wrap;
+  border-top:3px solid rgba(244,196,48,.3);padding:24px 0 30px;position:relative;z-index:2}
+.barcode{background:#fff;padding:10px 12px 6px;border:3px solid var(--ink);position:relative;overflow:hidden}
+.barcode .bars{width:150px;height:54px;background:
+  repeating-linear-gradient(90deg,#000 0 2px,#fff 2px 4px,#000 4px 7px,#fff 7px 9px,#000 9px 10px,#fff 10px 13px,#000 13px 16px,#fff 16px 18px)}
+.barcode .scan{position:absolute;left:8px;right:8px;top:8px;height:3px;background:var(--red);box-shadow:0 0 8px var(--red);animation:scan 2.4s ease-in-out infinite}
+.barcode .num{font-family:var(--ui);font-size:11px;letter-spacing:.3em;text-align:center;color:#000;margin-top:4px}
+.bc-meta{font-family:var(--ui);font-size:11px;letter-spacing:.12em;color:#9a8e6c;text-align:right;line-height:1.7}
+.bc-meta b{color:var(--straw)}
+.bc-disc{font-family:var(--serif);font-style:italic;font-size:12px;color:#8a7e5d;max-width:560px}
+
+/* ===================== MOBILE TOP BAR + TOC ===================== */
+.mbar{display:none;position:sticky;top:0;z-index:95;background:var(--ink);color:var(--paper);
+  border-bottom:3px solid var(--straw);align-items:center;justify-content:space-between;padding:10px 16px}
+.mbar .logo{display:flex;align-items:center;gap:10px;font-family:var(--disp);font-size:20px;color:var(--straw)}
+.mbar .logo .b{width:38px;height:38px;border:3px solid var(--straw);border-radius:50%;background:var(--sea-d);display:grid;place-items:center;position:relative;overflow:hidden}
+.mbar .logo .b svg{width:74%} .mbar .logo .b img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:3px}
+.mbar .logo span{color:var(--red)}
+.mbar button{font-family:var(--sfx);font-size:20px;letter-spacing:.1em;background:var(--straw);color:var(--ink);border:3px solid var(--ink);border-radius:8px;padding:4px 14px}
+.toc{position:fixed;inset:0;z-index:120;background:var(--paper);background-image:radial-gradient(var(--tone) 1px,transparent 1.4px);background-size:7px 7px;
+  display:none;flex-direction:column;padding:24px;transform:translateY(100%);transition:transform .4s cubic-bezier(.2,.8,.2,1)}
+.toc.open{display:flex;transform:none}
+.toc .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.toc .top b{font-family:var(--pirate);font-size:30px;color:var(--ink)}
+.toc .top button{font-family:var(--sfx);font-size:24px;color:var(--red-d)}
+.toc .sub{font-family:var(--sfx);letter-spacing:.2em;color:var(--red-d);font-size:13px;margin-bottom:18px}
+.toc a{font-family:var(--disp);font-size:clamp(28px,8vw,46px);color:var(--ink);padding:10px 0;border-bottom:3px solid var(--ink);
+  display:flex;justify-content:space-between;align-items:baseline;-webkit-text-stroke:1px var(--ink)}
+.toc a em{font-style:normal;color:var(--red);-webkit-text-stroke:0}
+.toc a .n{font-family:var(--sfx);color:var(--red-d);font-size:18px}
+
+/* ===================== SFX + REVEAL ===================== */
+.sfx-pop{position:absolute;z-index:9;font-family:var(--sfx);color:var(--red);-webkit-text-stroke:3px var(--paper);
+  text-shadow:5px 5px 0 var(--ink);pointer-events:none;opacity:0}
+.sfx-pop.in{animation:slam .55s cubic-bezier(.2,1.7,.3,1) forwards}
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .6s ease,transform .6s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* ===================== KEYFRAMES ===================== */
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes drift{to{transform:translateX(-50%)}}
+@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0) rotate(-1.5deg)}50%{transform:translateX(-50%) translateY(-12px) rotate(1.5deg)}}
+@keyframes floaty{0%,100%{transform:translate(-50%,-50%) rotate(-3deg)}50%{transform:translate(-50%,-54%) rotate(3deg)}}
+@keyframes blink{50%{opacity:.2}}
+@keyframes flick{0%,92%,100%{opacity:1}94%,98%{opacity:.35}}
+@keyframes slam{0%{opacity:0;transform:scale(2.6) rotate(-16deg)}60%{opacity:1}100%{opacity:1;transform:scale(1) rotate(var(--r,-8deg))}}
+@keyframes drop{0%{transform:translate(-50%,140%) scale(.5);opacity:0}55%{opacity:1}75%{transform:translate(-50%,-12%) scale(1.08)}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+@keyframes burst{0%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(calc(-50% + var(--tx)),calc(-50% + var(--ty))) scale(0);opacity:0}}
+@keyframes scan{0%,100%{top:8px}50%{top:calc(100% - 12px)}}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width:900px){
+  .rail{display:none}
+  .stage{margin-left:0}
+  .mbar{display:flex}
+  section{scroll-margin-top:62px}
+  .row-top,.row-bot{grid-template-columns:1fr}
+  .row-top{min-height:0}.row-bot{min-height:0}
+  .cap{min-height:380px}
+  .book{grid-template-columns:1fr}.book::before{display:none}
+  .pg-left{border-right:none;border-bottom:2px solid rgba(20,17,11,.2)}
+  .speech-row{grid-template-columns:1fr;gap:34px}
+  .spk::after{left:30px!important;right:auto!important;margin:0!important}
+  .tl .spine{left:18px}.tl .marker{left:18px}
+  .tl-item{width:100%;left:0!important;text-align:left!important;padding:12px 12px 12px 46px}
+  .tl-item .pin2{left:9px!important;right:auto!important}
+  .bc-grid{grid-template-columns:1fr;gap:28px}
+  .bc-meta{text-align:left}
+  .bubble.tl{left:8px}
+}
+@media (max-width:560px){
+  .folio .pg{width:44px;height:44px;font-size:18px}
+  .masthead{font-size:9px;letter-spacing:.14em}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+  .reveal,.tl-item{opacity:1;transform:none}
+  .sfx-pop{opacity:1;transform:rotate(var(--r,-8deg))}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ RAIL ============ -->
+<aside class="rail" aria-label="Volume navigation">
+  <div class="rope"></div>
+  <div class="rope-ship" id="ropeShip">⛵</div>
+  <a class="r-logo" href="#cover" aria-label="Top">
+    <svg viewBox="0 0 100 90" aria-hidden="true"><circle cx="50" cy="42" r="26" fill="#fff" stroke="#14110B" stroke-width="4"/><circle cx="40" cy="40" r="6" fill="#14110B"/><circle cx="60" cy="40" r="6" fill="#14110B"/><path d="M40 54 Q50 62 60 54" stroke="#14110B" stroke-width="3" fill="none"/><path d="M30 64 L18 80 M70 64 L82 80 M22 70 L12 76 M78 70 L88 76" stroke="#fff" stroke-width="7" stroke-linecap="round"/></svg>
+    <img src="jolly-roger.png" alt="" onerror="this.style.display='none'">
+  </a>
+  <div class="r-vol">VOL. ∞</div>
+  <nav class="r-nav">
+    <a href="#crew" data-c="crew"><span class="n">01</span>CREW</a>
+    <a href="#fruits" data-c="fruits"><span class="n">02</span>FRUITS</a>
+    <a href="#voyage" data-c="voyage"><span class="n">03</span>VOYAGE</a>
+    <a href="#words" data-c="words"><span class="n">04</span>WORDS</a>
+  </nav>
+  <div class="r-foot">FAN ED.</div>
+</aside>
+
+<!-- ============ MOBILE BAR + TOC ============ -->
+<div class="mbar">
+  <a class="logo" href="#cover"><span class="b"><svg viewBox="0 0 100 90" aria-hidden="true"><circle cx="50" cy="42" r="26" fill="#fff" stroke="#14110B" stroke-width="4"/><circle cx="40" cy="40" r="6" fill="#14110B"/><circle cx="60" cy="40" r="6" fill="#14110B"/></svg><img src="jolly-roger.png" alt="" onerror="this.style.display='none'"></span>STRAW HAT <span>HQ</span></a>
+  <button id="tocBtn" aria-label="Contents">CONTENTS ☰</button>
+</div>
+<div class="toc" id="toc">
+  <div class="top"><b>CONTENTS</b><button id="tocClose" aria-label="Close">✕</button></div>
+  <div class="sub">VOYAGE LOG · VOL. ∞</div>
+  <a href="#crew"><span><span class="n">01</span> THE CREW</span><em>→</em></a>
+  <a href="#fruits"><span><span class="n">02</span> DEVIL FRUITS</span><em>→</em></a>
+  <a href="#voyage"><span><span class="n">03</span> THE GRAND LINE</span><em>→</em></a>
+  <a href="#words"><span><span class="n">04</span> WORDS</span><em>→</em></a>
+</div>
+
+<div class="stage">
+
+  <!-- ============ COVER ============ -->
+  <section class="cover" id="cover">
+    <div class="sky" data-p="0.15"></div>
+    <div class="sun" data-p="0.3"></div>
+    <div class="cloud c1" data-p="0.5"></div>
+    <div class="cloud c2" data-p="0.7"></div>
+    <div class="cloud c3" data-p="0.4"></div>
+    <div class="emblem" data-p="0.22">
+      <svg viewBox="0 0 200 130" aria-hidden="true"><ellipse cx="100" cy="100" rx="86" ry="22" fill="#F4C430" stroke="#14110B" stroke-width="5"/><path d="M52 96 C52 44 76 22 100 22 C124 22 148 44 148 96 Z" fill="#F4C430" stroke="#14110B" stroke-width="5"/><path d="M54 84 C72 96 128 96 146 84 L146 96 C128 108 72 108 54 96 Z" fill="#E23B2E" stroke="#14110B" stroke-width="4"/></svg>
+      <img src="straw-hat.png" alt="Straw hat" onerror="this.style.display='none'">
+    </div>
+    <svg class="ship-sil" data-p="0.1" viewBox="0 0 230 120" aria-hidden="true">
+      <path d="M30 78 Q115 110 200 78 L182 56 L48 56 Z" fill="#0a1726" stroke="#000" stroke-width="2"/>
+      <line x1="115" y1="56" x2="115" y2="8" stroke="#0a1726" stroke-width="5"/>
+      <path d="M115 12 L115 50 L172 50 Z" fill="#0a1726"/><path d="M115 16 L115 46 L70 46 Z" fill="#0a1726"/>
+      <path d="M115 8 L138 14 L115 20 Z" fill="#E23B2E"/>
+    </svg>
+    <div class="sea" data-p="0.05">
+      <div class="wv a"><svg viewBox="0 0 1440 60" preserveAspectRatio="none"><path d="M0,30 C120,55 240,5 360,30 C480,55 600,5 720,30 C840,55 960,5 1080,30 C1200,55 1320,5 1440,30 L1440,60 L0,60 Z" fill="#2a5876"/></svg></div>
+      <div class="wv b"><svg viewBox="0 0 1440 60" preserveAspectRatio="none"><path d="M0,30 C120,55 240,5 360,30 C480,55 600,5 720,30 C840,55 960,5 1080,30 C1200,55 1320,5 1440,30 L1440,60 L0,60 Z" fill="#173a55"/></svg></div>
+      <div class="wv c"><svg viewBox="0 0 1440 60" preserveAspectRatio="none"><path d="M0,30 C120,55 240,5 360,30 C480,55 600,5 720,30 C840,55 960,5 1080,30 C1200,55 1320,5 1440,30 L1440,60 L0,60 Z" fill="#0c2236"/></svg></div>
+    </div>
+
+    <div class="masthead">
+      <span>PIRATE GAZETTE · <b>Straw Hat HQ</b></span>
+      <span>FAN VOLUME ∞ · ISSUE 1142 · PRICE: ONE DREAM</span>
+    </div>
+
+    <div class="cover-core">
+      <div class="kanban">— A ONE PIECE FAN SAGA —</div>
+      <h1 class="cover-h">SET <span class="y">SAIL</span></h1>
+      <div class="cover-sub">the grand line won't wait forever</div>
+    </div>
+
+    <div class="turn">TURN THE PAGE<b>↓</b></div>
+
+    <div class="chap-bar">
+      <span class="l"><i></i> CHAPTER ∞ — THE CREW RAISES ANCHOR</span>
+      <span class="r">DON!!</span>
+    </div>
+  </section>
+
+  <!-- ============ NEWSPAPER ============ -->
+  <div class="paper" aria-label="Big News Morgans headlines">
+    <div class="mast">BIG NEWS!<small>MORGANS</small></div>
+    <div class="news-track" id="newsTrack"></div>
+  </div>
+
+  <!-- ============ PAGE 01 — CREW ============ -->
+  <section class="page" id="crew">
+    <div class="pad">
+      <div class="folio reveal"><div class="bar"><span>PAGE 01 — <em>THE STRAW HATS</em></span></div><div class="pg">01</div></div>
+      <div class="spread">
+        <div class="row-top">
+          <!-- captain flip -->
+          <div class="panel cap reveal" id="capCard">
+            <span class="pno">1</span>
+            <div class="speedlines"></div>
+            <div class="bubble tl">I'm gonna be King of the Pirates!<span class="who">— Luffy</span></div>
+            <div class="flip">
+              <div class="face front">
+                <div class="em">
+                  <svg viewBox="0 0 200 130" aria-hidden="true"><ellipse cx="100" cy="100" rx="86" ry="22" fill="#F4C430" stroke="#14110B" stroke-width="5"/><path d="M52 96 C52 44 76 22 100 22 C124 22 148 44 148 96 Z" fill="#F4C430" stroke="#14110B" stroke-width="5"/><path d="M54 84 C72 96 128 96 146 84 L146 96 C128 108 72 108 54 96 Z" fill="#E23B2E" stroke="#14110B" stroke-width="4"/></svg>
+                  <img src="straw-hat.png" alt="Straw hat" onerror="this.style.display='none'">
+                </div>
+                <div class="nm">MONKEY D. LUFFY</div>
+                <div class="rl">CAPTAIN · "STRAW HAT"</div>
+              </div>
+              <div class="face back">
+                <div class="halftone"></div>
+                <div class="wt">WANTED</div>
+                <div class="dream">"I don't want to conquer anything. The freest person on the sea — that's the Pirate King."</div>
+                <div class="bty">₿ 3,000,000,000</div>
+              </div>
+            </div>
+            <span class="hint">↻ TAP TO FLIP</span>
+          </div>
+          <!-- roster -->
+          <div class="panel rost reveal">
+            <span class="pno">2</span>
+            <div class="hd">CREW <small>10 NAKAMA · TAP TO PIN</small></div>
+            <ul id="roster"></ul>
+          </div>
+        </div>
+        <div class="row-bot">
+          <!-- manifest -->
+          <div class="panel mani reveal">
+            <span class="pno">3</span>
+            <h3>The Log</h3>
+            <ul class="log">
+              <li><span class="k">Crew aboard</span><span class="dots"></span><span class="v" data-count="10">0</span></li>
+              <li><span class="k">Combined bounty</span><span class="dots"></span><span class="v">₿<span data-count="8.9" data-dec="1">0</span>B</span></li>
+              <li><span class="k">Sagas survived</span><span class="dots"></span><span class="v" data-count="11">0</span></li>
+              <li><span class="k">Dreams chasing</span><span class="dots"></span><span class="v">∞</span></li>
+            </ul>
+            <div class="go"><span>GO GO GO!! <b>★</b> GO GO GO!! <b>★</b> GO GO GO!! <b>★</b></span></div>
+          </div>
+          <!-- fruit teaser -->
+          <div class="panel fteaser reveal">
+            <span class="pno" style="color:#fff;background:var(--red)">4</span>
+            <div class="orb"><img src="devil-fruit.png" alt="Devil fruit" onerror="this.style.display='none'"></div>
+            <div class="lab">DEVIL FRUIT OF THE ARC</div>
+            <div class="fn">Gomu Gomu no Mi</div>
+            <a href="#fruits">OPEN ENCYCLOPEDIA →</a>
+          </div>
+          <!-- impact -->
+          <div class="panel impact reveal">
+            <span class="pno" style="color:#000;background:var(--straw)">5</span>
+            <div class="halftone"></div>
+            <div class="don sfx-pop" style="--r:-9deg;position:relative;opacity:1;transform:rotate(-9deg)">DON!!</div>
+            <div class="cap">— the sound the world makes when the truth drops.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PAGE 02 — DEVIL FRUITS ============ -->
+  <section class="page" id="fruits" style="background:var(--paper3)">
+    <div class="pad">
+      <div class="folio reveal"><div class="bar"><span>PAGE 02 — <em>DEVIL FRUIT ENCYCLOPEDIA</em></span></div><div class="pg">02</div></div>
+      <div class="book reveal">
+        <div class="pg-left">
+          <div class="ttl">~ Pull from the Sea ~</div>
+          <div class="stage2" id="stage2">
+            <div class="glow" id="glow"></div>
+            <div class="drop" id="drop"><div class="orb"><img src="devil-fruit.png" alt="Devil fruit" onerror="this.style.display='none'"></div></div>
+            <div class="spark" id="spark"></div>
+            <div class="wav">
+              <svg class="a" viewBox="0 0 1440 60" preserveAspectRatio="none"><path d="M0,30 C120,55 240,5 360,30 C480,55 600,5 720,30 C840,55 960,5 1080,30 C1200,55 1320,5 1440,30 L1440,60 L0,60 Z" fill="#2a5876"/></svg>
+              <svg class="b" viewBox="0 0 1440 60" preserveAspectRatio="none"><path d="M0,30 C120,55 240,5 360,30 C480,55 600,5 720,30 C840,55 960,5 1080,30 C1200,55 1320,5 1440,30 L1440,60 L0,60 Z" fill="#173a55"/></svg>
+            </div>
+          </div>
+          <button class="pull-btn" id="pullBtn">🎣 PULL FROM THE SEA</button>
+        </div>
+        <div class="pg-right">
+          <div class="kicker">SEA PRISM INDEX · ENTRY</div>
+          <div class="fname" id="fName">— cast your line —</div>
+          <div class="meta"><span class="badge" id="fType" style="background:var(--straw)">TYPE</span></div>
+          <div class="user" id="fUser">USER · ???</div>
+          <div class="power" id="fPower">One bite grants a cursed power — and the ocean rejects you forever. Pull a fruit to read its entry.</div>
+          <div class="chips" id="chips"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PAGE 03 — GRAND LINE ============ -->
+  <section class="page" id="voyage">
+    <div class="pad">
+      <div class="folio reveal"><div class="bar"><span>PAGE 03 — <em>THE GRAND LINE</em></span></div><div class="pg">03</div></div>
+      <div class="tl" id="tl">
+        <div class="spine"></div>
+        <div class="marker" id="tlMarker">⛵</div>
+        <!-- items injected -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PAGE 04 — WORDS ============ -->
+  <section class="page" id="words" style="background:var(--paper3)">
+    <div class="pad">
+      <div class="folio reveal"><div class="bar"><span>PAGE 04 — <em>WORDS FROM THE SEA</em></span></div><div class="pg">04</div></div>
+      <div class="dialogue reveal">
+        <div class="narr">Somewhere between the waves and the stars…</div>
+        <div class="speech-row" id="speechRow"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BACK COVER ============ -->
+  <footer class="backcover">
+    <div class="halftone"></div>
+    <div class="pad">
+      <div class="bc-grid">
+        <div class="bc-brand">
+          <div class="logo">
+            <span class="b"><svg viewBox="0 0 100 90" aria-hidden="true"><circle cx="50" cy="42" r="26" fill="#fff" stroke="#14110B" stroke-width="4"/><circle cx="40" cy="40" r="6" fill="#14110B"/><circle cx="60" cy="40" r="6" fill="#14110B"/></svg><img src="jolly-roger.png" alt="" onerror="this.style.display='none'"></span>
+            <b>STRAW HAT <span>HQ</span></b>
+          </div>
+          <p>A fan‑made voyage log celebrating the greatest adventure ever drawn. The sea is wide, the crew is loud, and the next island is always on the horizon.</p>
+          <div class="oath">⚓ ALL CREW ACCOUNTED FOR</div>
+          <div class="bc-sub">
+            <h5>Subscribe to the Pirate Gazette</h5>
+            <form id="subForm"><input type="email" required placeholder="your@logpose.sea" aria-label="Email"><button type="submit">ENLIST</button></form>
+            <div class="ok" id="subOk">🏴‍️ WELCOME ABOARD, NAKAMA!</div>
+          </div>
+        </div>
+        <div class="bc-col">
+          <h5>Sail With Us</h5>
+          <a href="#crew">The Crew</a><a href="#fruits">Devil Fruits</a><a href="#voyage">Voyage Map</a><a href="#words">Quotes</a>
+        </div>
+        <div class="bc-col">
+          <h5>The Saga</h5>
+          <a href="#">East Blue</a><a href="#">Alabasta</a><a href="#">Marineford</a><a href="#">Wano Country</a><a href="#">Egghead</a>
+        </div>
+      </div>
+      <div class="bc-bottom">
+        <div class="barcode"><div class="scan"></div><div class="bars"></div><div class="num">9 781142 000000</div></div>
+        <div class="bc-meta">
+          <div>SHONEN FAN PRESS · <b>TANKŌBON ED.</b></div>
+          <div>ISBN 978‑1‑142‑00000‑0 · <b>PRICE: ONE DREAM</b></div>
+          <div>PRINTED ON THE THOUSAND SUNNY</div>
+        </div>
+      </div>
+      <div class="bc-bottom" style="border-top:none;padding-top:0">
+        <div class="bc-disc">Fan‑made concept. One Piece © Eiichiro Oda / Shueisha · Toei Animation. No affiliation — and thankfully, no bounty on this page.</div>
+        <div class="bc-meta">© 2026 STRAW HAT HQ · BUILT BY NAKAMA</div>
+      </div>
+    </div>
+  </footer>
+
+</div><!-- /stage -->
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- DATA ---------- */
+const CREW=[
+ {n:"Monkey D. Luffy",r:"Captain",b:"3,000,000,000",c:"#E63946",i:"L"},
+ {n:"Roronoa Zoro",r:"Swordsman",b:"1,111,000,000",c:"#2E7D32",i:"Z"},
+ {n:"Nami",r:"Navigator",b:"366,000,000",c:"#F4842D",i:"N"},
+ {n:"Usopp",r:"Sniper",b:"500,000,000",c:"#C9A227",i:"U"},
+ {n:"Vinsmoke Sanji",r:"Cook",b:"1,032,000,000",c:"#1F4E8C",i:"S"},
+ {n:"Tony Tony Chopper",r:"Doctor",b:"1,000",c:"#E58BA3",i:"C"},
+ {n:"Nico Robin",r:"Archaeologist",b:"930,000,000",c:"#6A4C93",i:"R"},
+ {n:"Franky",r:"Shipwright",b:"394,000,000",c:"#2AA8A0",i:"F"},
+ {n:"Brook",r:"Musician",b:"383,000,000",c:"#8B8FA3",i:"B"},
+ {n:"Jinbe",r:"Helmsman",b:"1,100,000,000",c:"#274690",i:"J"},
+];
+const TYPECOL={Paramecia:"#E23B2E",Zoan:"#F4C430",Logia:"#5FD4E6"};
+const FRUITS=[
+ {n:"Gomu Gomu no Mi",t:"Zoan",u:"Monkey D. Luffy",p:"A rubber body — that awakens as the Sun God Nika.",g:"rgba(244,196,48,.7)"},
+ {n:"Mera Mera no Mi",t:"Logia",u:"Portgas D. Ace / Sabo",p:"Create, control, and become living flame.",g:"rgba(226,59,46,.7)"},
+ {n:"Ope Ope no Mi",t:"Paramecia",u:"Trafalgar Law",p:"The ultimate fruit: a spherical Room of total control.",g:"rgba(95,212,230,.7)"},
+ {n:"Gura Gura no Mi",t:"Paramecia",u:"Edward Newgate",p:"Quakes strong enough to shatter the world.",g:"rgba(255,255,255,.6)"},
+ {n:"Yami Yami no Mi",t:"Logia",u:"Marshall D. Teach",p:"Darkness that swallows all — even Devil Fruit powers.",g:"rgba(90,47,125,.8)"},
+ {n:"Hana Hana no Mi",t:"Paramecia",u:"Nico Robin",p:"Bloom limbs on any surface you can see.",g:"rgba(192,57,107,.7)"},
+ {n:"Suna Suna no Mi",t:"Logia",u:"Crocodile",p:"Become and command the desert's sand.",g:"rgba(206,158,0,.7)"},
+ {n:"Hito Hito no Mi",t:"Zoan",u:"Tony Tony Chopper",p:"Human form; Rumble Balls unlock extra forms.",g:"rgba(229,139,163,.7)"},
+ {n:"Yomi Yomi no Mi",t:"Paramecia",u:"Brook",p:"Return to life once after death — then wield your soul.",g:"rgba(180,180,200,.6)"},
+ {n:"Uo Uo no Mi: Seiryu",t:"Zoan",u:"Kaido",p:"Mythical azure dragon — flame clouds and storms.",g:"rgba(47,163,163,.7)"},
+ {n:"Soru Soru no Mi",t:"Paramecia",u:"Charlotte Linlin",p:"Steal and shape souls into living homies.",g:"rgba(226,59,46,.6)"},
+ {n:"Pika Pika no Mi",t:"Logia",u:"Borsalino",p:"Move and strike at the speed of light.",g:"rgba(255,231,154,.8)"},
+];
+const STOPS=[
+ {n:"Reverse Mountain",a:"Where the Grand Line begins — the river that climbs the sky."},
+ {n:"Whiskey Peak",a:"A welcoming town full of bounty hunters in disguise."},
+ {n:"Drum Island",a:"A frozen kingdom where a doctor joins the crew."},
+ {n:"Alabasta",a:"A desert kingdom saved from a warlord's shadow."},
+ {n:"Skypiea",a:"A golden city floating above the clouds."},
+ {n:"Water 7",a:"The city of water, canals, and master shipwrights."},
+ {n:"Enies Lobby",a:"The crew declares war on the World Government."},
+ {n:"Sabaody",a:"The archipelago that scattered the Straw Hats."},
+ {n:"Wano",a:"A land of samurai, sealed off from the world."},
+ {n:"Laugh Tale",a:"The final island. The One Piece waits here."},
+];
+const QUOTES=[
+ {q:"ONE PIECE IS REAL!",w:"— Edward Newgate"},
+ {q:"When do you think people die? It's when they are forgotten.",w:"— Dr. Hiriluk"},
+ {q:"Nothing happened.",w:"— Roronoa Zoro"},
+];
+const NEWS=[
+ "STRAW HATS SPOTTED HEADING DEEPER INTO THE NEW WORLD",
+ "BOUNTIES SKYROCKET AGAIN — MARINES ON HIGH ALERT",
+ "EXCLUSIVE: REVOLUTIONARY ARMY MAKES ITS MOVE",
+ "SEA EMPERORS RUMORED TO BE IN SECRET SUMMIT",
+ "DR. VEGAPUNK'S BROADCAST ROCKS THE WORLD",
+ "WANTED: ANY INFO ON THE WILL OF D.",
+];
+
+/* ---------- NEWSPAPER ---------- */
+const nt=$('#newsTrack');
+const nh=NEWS.map(h=>`<span><b>EXTRA</b> ${h}</span>`).join('');
+nt.innerHTML=nh+nh;
+
+/* ---------- ROSTER ---------- */
+const roster=$('#roster');
+CREW.forEach(c=>{
+  const li=document.createElement('li');
+  li.innerHTML=`<span class="ic" style="background:${c.c}">${c.i}</span>
+    <span class="nm">${c.n}<small>${c.r}</small></span>
+    <span class="bt">₿${c.b}</span>`;
+  li.addEventListener('click',()=>li.classList.toggle('pin'));
+  roster.appendChild(li);
+});
+
+/* ---------- FRUIT CHIPS + ENCYCLOPEDIA ---------- */
+const chips=$('#chips');
+FRUITS.forEach((f,i)=>{
+  const b=document.createElement('button');
+  b.className='chip';b.textContent=f.n.replace(' no Mi','');b.dataset.i=i;
+  b.addEventListener('click',()=>setFruit(i,false));
+  chips.appendChild(b);
+});
+function setFruit(i,animate){
+  const f=FRUITS[i];
+  $('#fName').textContent=f.n;
+  const tb=$('#fType');tb.textContent=f.t.toUpperCase();tb.style.background=TYPECOL[f.t];
+  $('#fUser').textContent='USER · '+f.u.toUpperCase();
+  $('#fPower').textContent=f.p;
+  $('#glow').style.setProperty('--gc',f.g);
+  $$('.chip').forEach((c,j)=>c.classList.toggle('on',j===i));
+  if(animate) doDrop();
+}
+const drop=$('#drop'), spark=$('#spark');
+function doDrop(){
+  if(reduced){drop.classList.add('go');burst();return;}
+  drop.classList.remove('go');void drop.offsetWidth;drop.classList.add('go');
+  burst();
+}
+function burst(){
+  spark.innerHTML='';
+  for(let k=0;k<10;k++){
+    const s=document.createElement('i');
+    const ang=(Math.PI*2*k/10), dist=70+Math.random()*40;
+    s.style.setProperty('--tx',(Math.cos(ang)*dist).toFixed(0)+'px');
+    s.style.setProperty('--ty',(Math.sin(ang)*dist).toFixed(0)+'px');
+    s.style.animation='burst .7s ease-out forwards';
+    s.style.background=['#F4C430','#E23B2E','#5FD4E6','#fff'][k%4];
+    spark.appendChild(s);
+    setTimeout(()=>s.remove(),750);
+  }
+}
+$('#pullBtn').addEventListener('click',()=>setFruit(Math.floor(Math.random()*FRUITS.length),true));
+
+/* ---------- TIMELINE ---------- */
+const tl=$('#tl');
+STOPS.forEach((s,i)=>{
+  const d=document.createElement('div');
+  d.className='tl-item';
+  d.style.setProperty('--rot',(i%2?2.4:-2.6)+'deg');
+  d.innerHTML=`<span class="pin2"></span><div class="card"><div class="idx">STOP ${String(i+1).padStart(2,'0')}</div><h4>${s.n}</h4><p>${s.a}</p></div>`;
+  tl.appendChild(d);
+});
+const tlItems=$$('.tl-item'), tlMarker=$('#tlMarker');
+
+/* ---------- DIALOGUE ---------- */
+const sr=$('#speechRow');
+QUOTES.forEach(q=>{
+  const d=document.createElement('div');
+  d.className='spk';
+  d.innerHTML=`<div class="q">${q.q}</div><div class="w">${q.w}</div>`;
+  sr.appendChild(d);
+});
+
+/* ---------- CAPTAIN FLIP ---------- */
+$('#capCard').addEventListener('click',()=>$('#capCard').classList.toggle('flipped'));
+
+/* ---------- SUBSCRIBE ---------- */
+$('#subForm').addEventListener('submit',e=>{e.preventDefault();$('#subForm').style.display='none';$('#subOk').classList.add('show');});
+
+/* ---------- MOBILE TOC ---------- */
+const toc=$('#toc');
+$('#tocBtn').onclick=()=>toc.classList.add('open');
+$('#tocClose').onclick=()=>toc.classList.remove('open');
+toc.querySelectorAll('a').forEach(a=>a.onclick=()=>toc.classList.remove('open'));
+
+/* ---------- COUNTERS ---------- */
+const cio=new IntersectionObserver(es=>es.forEach(e=>{
+  if(!e.isIntersecting)return;
+  const el=e.target,target=parseFloat(el.dataset.count),dec=+(el.dataset.dec||0),dur=1400,t0=performance.now();
+  (function step(t){const p=Math.min((t-t0)/dur,1),ease=1-Math.pow(1-p,3);
+    el.textContent=(target*ease).toFixed(dec);if(p<1)requestAnimationFrame(step);})(t0);
+  cio.unobserve(el);
+}),{threshold:.6});
+$$('[data-count]').forEach(el=>cio.observe(el));
+
+/* ---------- REVEALS + SFX ---------- */
+const io=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}
+}),{threshold:.15});
+$$('.reveal,.sfx-pop,.tl-item').forEach(el=>io.observe(el));
+
+/* ---------- ACTIVE CHAPTER ---------- */
+const navLinks=$$('.r-nav a');
+const aco=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){
+    navLinks.forEach(l=>l.classList.toggle('on',l.dataset.c===e.target.id));
+  }
+}),{rootMargin:'-45% 0px -45% 0px'});
+['crew','fruits','voyage','words'].forEach(id=>{const el=$('#'+id);if(el)aco.observe(el);});
+
+/* ---------- SCROLL LOOP: rope marker, cover parallax, timeline marker ---------- */
+const ropeShip=$('#ropeShip'), cover=$('#cover');
+const pLayers=$$('[data-p]');
+let ticking=false;
+function onScroll(){
+  if(ticking)return;ticking=true;
+  requestAnimationFrame(()=>{
+    const h=document.documentElement;
+    const prog=h.scrollTop/(h.scrollHeight-h.clientHeight||1);
+    ropeShip.style.top=(prog*100).toFixed(1)+'%';
+
+    // cover parallax
+    const cy=cover.getBoundingClientRect();
+    if(cy.bottom>0 && !reduced){
+      const off=-cy.top;
+      pLayers.forEach(l=>{l.style.transform=`translateY(${(off*+l.dataset.p).toFixed(1)}px)`;});
+    }
+
+    // timeline marker + reveals within timeline
+    const tr=tl.getBoundingClientRect();
+    const tp=Math.min(1,Math.max(0,(innerHeight*0.5-tr.top)/(tr.height)));
+    tlMarker.style.top=(tp*100).toFixed(1)+'%';
+    tlItems.forEach(it=>{
+      const r=it.getBoundingClientRect();
+      if(r.top<innerHeight*0.82)it.classList.add('in');
+    });
+    ticking=false;
+  });
+}
+addEventListener('scroll',onScroll,{passive:true});
+addEventListener('resize',onScroll);
+onScroll();
+</script>
+</body>
+</html>

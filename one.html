@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Straw Hat HQ — A One Piece Voyage Hub</title>
+<meta name="description" content="A fan-made One Piece voyage hub: crew bounties, Devil Fruit intel, and the route to Laugh Tale.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='8' fill='%23FFD23F'/%3E%3Crect x='2' y='7' width='12' height='3' fill='%23E63946'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Karla:ital,wght@0,400;0,500;0,700;0,800;1,400&family=Pirata+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sea:#0B2C4A; --deep:#071E36; --abyss:#051529; --panel:#0F3A5E;
+  --straw:#FFD23F; --straw-d:#E9B400; --red:#E63946; --red-d:#B81F2C;
+  --teal:#5FD4E6; --parch:#F2DFB6; --parch-2:#E7CE9C; --ink:#0E141B; --paper:#FFF6E5;
+  --disp:'Bangers',system-ui,sans-serif;
+  --pirate:'Pirata One',cursive;
+  --body:'Karla',system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--body);color:var(--paper);background:var(--deep);
+  background-image:radial-gradient(rgba(255,255,255,.05) 1.2px,transparent 1.3px);
+  background-size:16px 16px;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+::selection{background:var(--red);color:#fff}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+img{display:block;max-width:100%}
+.wrap{width:min(1200px,92vw);margin:0 auto}
+.disp{font-family:var(--disp);letter-spacing:.02em;line-height:.92}
+.pirate{font-family:var(--pirate)}
+
+/* progress + nav */
+#progress{position:fixed;top:0;left:0;height:5px;width:0;background:var(--straw);z-index:120;box-shadow:0 0 0 1px var(--ink)}
+.nav{position:sticky;top:0;z-index:110;background:var(--deep);border-bottom:3px solid var(--ink);transition:box-shadow .25s}
+.nav.scrolled{box-shadow:0 6px 0 rgba(0,0,0,.35)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;height:68px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:42px;height:42px;border:3px solid var(--ink);border-radius:50%;background:var(--sea);position:relative;overflow:hidden;display:grid;place-items:center;flex:0 0 auto}
+.logo svg{width:78%}
+.logo img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:3px}
+.brand b{font-family:var(--disp);font-size:24px;letter-spacing:.04em;color:var(--straw);line-height:1}
+.brand b span{color:var(--red)}
+.nav-links{display:flex;gap:30px}
+.nav-links a{font-family:var(--disp);font-size:18px;letter-spacing:.05em;padding:4px 2px;position:relative}
+.nav-links a:hover{color:var(--straw);text-decoration:underline wavy var(--red) 2px;text-underline-offset:6px}
+.nav-cta{display:flex;align-items:center;gap:16px}
+.menu-btn{display:none;font-family:var(--disp);font-size:20px;border:3px solid var(--ink);border-radius:8px;padding:4px 12px;background:var(--straw);color:var(--ink)}
+.mobile{display:none}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--disp);font-size:19px;letter-spacing:.05em;padding:12px 22px;border:3px solid var(--ink);border-radius:10px;box-shadow:5px 5px 0 var(--ink);transition:transform .14s,box-shadow .14s,background .14s,color .14s}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 var(--ink)}
+.btn:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+.btn-y{background:var(--straw);color:var(--ink)}
+.btn-r{background:var(--red);color:#fff}
+.btn-g{background:transparent;color:var(--teal);border-color:var(--teal);box-shadow:5px 5px 0 rgba(95,212,230,.3)}
+.btn-g:hover{box-shadow:8px 8px 0 rgba(95,212,230,.35)}
+.btn-sm{font-size:16px;padding:8px 16px;box-shadow:4px 4px 0 var(--ink)}
+
+/* ---------- HERO ---------- */
+.hero{position:relative;padding:70px 0 150px;background:radial-gradient(120% 90% at 80% 0%,#103a63 0%,var(--deep) 55%,var(--abyss) 100%);overflow:hidden}
+.sunburst{position:absolute;top:-260px;right:-160px;width:760px;height:760px;border-radius:50%;background:repeating-conic-gradient(from 0deg,rgba(255,210,63,.10) 0 5deg,transparent 5deg 10deg);animation:spin 70s linear infinite;pointer-events:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:54px;align-items:center;position:relative;z-index:2}
+.route-tag{display:inline-flex;align-items:center;gap:9px;font-family:var(--disp);font-size:15px;letter-spacing:.06em;color:var(--ink);background:var(--teal);border:3px solid var(--ink);border-radius:30px;padding:6px 16px;box-shadow:4px 4px 0 var(--ink);margin-bottom:24px}
+.wobble{display:inline-block;animation:wob 2.4s ease-in-out infinite}
+@keyframes wob{0%,100%{transform:rotate(-12deg)}50%{transform:rotate(12deg)}}
+h1.hero-h{font-size:clamp(54px,9vw,118px);color:var(--paper);-webkit-text-stroke:2px var(--ink);text-shadow:6px 6px 0 var(--red)}
+h1.hero-h .y{color:var(--straw);-webkit-text-stroke:2px var(--ink);text-shadow:6px 6px 0 var(--ink)}
+h1.hero-h small{display:block;font-size:clamp(26px,3.4vw,46px);color:var(--teal);-webkit-text-stroke:1.5px var(--ink);text-shadow:3px 3px 0 var(--ink);margin-bottom:6px}
+.hero p.lede{font-size:17px;line-height:1.6;color:#cfe0ee;max-width:480px;margin:26px 0 30px}
+.hero p.lede b{color:var(--straw)}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap}
+.hero-stats{margin-top:34px;display:flex;gap:10px;flex-wrap:wrap}
+.hero-stats span{font-family:var(--disp);font-size:14px;letter-spacing:.05em;color:#9fc0d8;border:2px dashed rgba(255,255,255,.25);border-radius:8px;padding:6px 12px}
+.hero-stats span b{color:var(--straw)}
+
+/* wanted poster */
+.wanted{position:relative;background:var(--parch);color:var(--ink);border:4px solid var(--ink);border-radius:8px;padding:18px 18px 22px;box-shadow:10px 12px 0 rgba(0,0,0,.45);transform:rotate(-2.4deg);max-width:340px;margin-left:auto;transition:transform .3s}
+.wanted:hover{transform:rotate(0) translateY(-4px)}
+.wanted::before{content:"";position:absolute;inset:6px;border:2px solid rgba(14,20,27,.35);border-radius:4px;pointer-events:none}
+.w-top{font-family:var(--pirate);font-size:46px;letter-spacing:.06em;text-align:center;line-height:.9;color:var(--red-d)}
+.w-sub{font-family:var(--disp);font-size:14px;letter-spacing:.34em;text-align:center;color:var(--ink);margin:2px 0 12px}
+.w-photo{position:relative;aspect-ratio:1/1;background:var(--sea);border:3px solid var(--ink);border-radius:5px;overflow:hidden;display:grid;place-items:center}
+.w-photo svg{width:64%}
+.w-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:10px}
+.w-name{font-family:var(--disp);font-size:30px;text-align:center;letter-spacing:.03em;margin-top:12px;line-height:.95}
+.w-epi{font-family:var(--body);font-style:italic;font-weight:700;text-align:center;font-size:13px;color:#5a4a2c}
+.w-blabel{font-family:var(--disp);font-size:12px;letter-spacing:.2em;text-align:center;margin-top:12px;color:#5a4a2c;display:flex;align-items:center;justify-content:center;gap:7px}
+.w-blabel i{width:8px;height:8px;background:var(--red);border-radius:50%;animation:blink 1.4s steps(2) infinite}
+@keyframes blink{50%{opacity:.2}}
+.w-bounty{font-family:var(--disp);font-size:34px;text-align:center;color:var(--red-d);line-height:1;letter-spacing:.01em}
+.w-stamp{position:absolute;top:14px;right:-12px;font-family:var(--disp);font-size:18px;letter-spacing:.1em;color:var(--red);border:3px solid var(--red);border-radius:6px;padding:4px 10px;transform:rotate(13deg);opacity:.85;background:rgba(242,223,182,.4)}
+.compass{position:absolute;left:-26px;bottom:-22px;width:64px;height:64px;background:var(--straw);border:3px solid var(--ink);border-radius:50%;display:grid;place-items:center;font-size:30px;box-shadow:4px 4px 0 var(--ink);animation:wob 3s ease-in-out infinite}
+
+/* waves */
+.waves{position:absolute;left:0;right:0;bottom:0;height:150px;z-index:1;pointer-events:none}
+.wave{position:absolute;left:0;bottom:0;width:200%;height:100%}
+.wave svg{width:100%;height:100%;display:block}
+.w1{animation:drift 16s linear infinite;opacity:.5}
+.w2{animation:drift 11s linear infinite reverse;opacity:.7;bottom:-6px}
+.w3{animation:drift 8s linear infinite;bottom:-12px}
+@keyframes drift{to{transform:translateX(-50%)}}
+
+/* ---------- TICKER ---------- */
+.ticker{background:var(--red);border-top:3px solid var(--ink);border-bottom:3px solid var(--ink);overflow:hidden;position:relative;z-index:5}
+.ticker-track{display:flex;width:max-content;animation:tick 38s linear infinite;padding:11px 0}
+.ticker:hover .ticker-track{animation-play-state:paused}
+.ticker span{font-family:var(--disp);font-size:17px;letter-spacing:.05em;color:var(--paper);white-space:nowrap;padding:0 22px;display:flex;align-items:center;gap:14px}
+.ticker span b{color:var(--straw)}
+.ticker span em{font-style:normal;color:rgba(255,246,229,.6)}
+@keyframes tick{to{transform:translateX(-50%)}}
+
+/* ---------- SECTIONS ---------- */
+section{position:relative}
+.sec{padding:96px 0}
+.sec.alt{background:var(--sea)}
+.sec.dark{background:var(--abyss)}
+.tag{display:inline-flex;align-items:center;gap:9px;font-family:var(--disp);font-size:15px;letter-spacing:.08em;color:var(--ink);background:var(--straw);border:3px solid var(--ink);border-radius:30px;padding:5px 15px;box-shadow:4px 4px 0 var(--ink);margin-bottom:18px}
+.tag::before{content:"☠";font-size:13px}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:36px;flex-wrap:wrap;margin-bottom:46px}
+.sec-head h2{font-size:clamp(40px,6vw,74px);color:var(--paper);-webkit-text-stroke:1.5px var(--ink);text-shadow:5px 5px 0 var(--red)}
+.sec-head h2 .y{color:var(--straw);text-shadow:5px 5px 0 var(--ink)}
+.sec-head .side{max-width:360px;font-size:15.5px;line-height:1.6;color:#bcd2e3}
+.sec-head .side b{color:var(--straw)}
+
+/* ---------- BOUNTY BOARD ---------- */
+.board-wrap{position:relative}
+.board{display:flex;gap:26px;overflow-x:auto;scroll-snap-type:x proximity;padding:18px 4px 46px;scrollbar-width:thin;scrollbar-color:var(--straw) transparent}
+.board::-webkit-scrollbar{height:10px}
+.board::-webkit-scrollbar-thumb{background:var(--straw);border-radius:8px;border:2px solid var(--ink)}
+.poster{position:relative;flex:0 0 232px;scroll-snap-align:center;background:var(--parch);color:var(--ink);border:4px solid var(--ink);border-radius:7px;padding:14px 14px 18px;box-shadow:7px 9px 0 rgba(0,0,0,.4);transform:rotate(var(--r));transition:transform .28s,box-shadow .28s}
+.poster:hover{transform:rotate(0) translateY(-12px);box-shadow:10px 14px 0 rgba(0,0,0,.5);z-index:3}
+.poster.captain{flex-basis:262px}
+.poster::after{content:"";position:absolute;inset:5px;border:2px solid rgba(14,20,27,.3);border-radius:4px;pointer-events:none}
+.p-top{font-family:var(--pirate);font-size:34px;text-align:center;color:var(--red-d);line-height:.85}
+.p-sub{font-family:var(--disp);font-size:11px;letter-spacing:.3em;text-align:center;margin:1px 0 10px}
+.p-photo{position:relative;aspect-ratio:1/1;background:var(--sea);border:3px solid var(--ink);border-radius:5px;overflow:hidden;display:grid;place-items:center}
+.p-photo svg{width:60%}
+.p-photo .ini{font-family:var(--disp);font-size:74px;color:#fff;text-shadow:4px 4px 0 var(--ink);line-height:1}
+.p-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:8px}
+.p-name{font-family:var(--disp);font-size:23px;text-align:center;margin-top:10px;line-height:.95}
+.p-epi{font-style:italic;font-weight:700;text-align:center;font-size:12px;color:#5a4a2c;min-height:16px}
+.p-role{font-family:var(--disp);font-size:12px;letter-spacing:.14em;text-align:center;margin-top:8px;color:#fff;background:var(--ink);border-radius:4px;padding:4px}
+.p-bounty{font-family:var(--disp);font-size:25px;text-align:center;color:var(--red-d);margin-top:8px;line-height:1}
+.p-cap{position:absolute;top:-14px;left:50%;transform:translateX(-50%) rotate(-3deg);font-family:var(--disp);font-size:14px;letter-spacing:.1em;background:var(--red);color:#fff;border:3px solid var(--ink);border-radius:6px;padding:3px 12px;box-shadow:3px 3px 0 var(--ink)}
+.p-stamp{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;opacity:0}
+.p-stamp span{font-family:var(--disp);font-size:42px;letter-spacing:.08em;color:var(--red);border:5px solid var(--red);border-radius:10px;padding:6px 18px;transform:rotate(-16deg) scale(1.7);background:rgba(242,223,182,.55)}
+.poster.stamped .p-stamp{animation:stamp .8s cubic-bezier(.2,1.4,.4,1) forwards}
+@keyframes stamp{0%{opacity:0}15%{opacity:1}100%{opacity:1;transform:none}}
+.poster.stamped .p-stamp span{animation:stampIn .8s cubic-bezier(.2,1.4,.4,1) forwards}
+@keyframes stampIn{0%{transform:rotate(-16deg) scale(1.7);opacity:0}40%{transform:rotate(-16deg) scale(1);opacity:1}100%{transform:rotate(-16deg) scale(1);opacity:.92}}
+.board-nav{display:flex;gap:12px}
+.board-nav button{width:48px;height:48px;border:3px solid var(--ink);border-radius:50%;background:var(--straw);color:var(--ink);font-family:var(--disp);font-size:24px;box-shadow:4px 4px 0 var(--ink);transition:transform .12s,box-shadow .12s}
+.board-nav button:hover{transform:translate(-1px,-1px);box-shadow:6px 6px 0 var(--ink)}
+.board-nav button:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+
+/* ---------- DEVIL FRUITS ---------- */
+.roulette{display:grid;grid-template-columns:200px 1fr auto;gap:30px;align-items:center;background:var(--panel);border:4px solid var(--ink);border-radius:14px;padding:28px;box-shadow:8px 8px 0 var(--ink);margin-bottom:48px}
+.r-fruit{position:relative;width:170px;height:170px;border-radius:50%;border:4px solid var(--ink);overflow:hidden;display:grid;place-items:center;background:radial-gradient(circle at 38% 32%,#7a4fa0,#3a1f55);box-shadow:inset 0 0 0 4px rgba(0,0,0,.2);animation:floaty 4s ease-in-out infinite}
+@keyframes floaty{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-8px) rotate(3deg)}}
+.r-fruit .swirl{position:absolute;inset:0;background:repeating-radial-gradient(circle at 50% 50%,rgba(95,212,230,.55) 0 3px,transparent 3px 11px)}
+.r-fruit img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:6px}
+.r-mid .r-label{font-family:var(--disp);font-size:14px;letter-spacing:.18em;color:var(--teal)}
+.r-slot{font-family:var(--pirate);font-size:clamp(30px,4vw,46px);color:var(--straw);background:var(--ink);border:3px solid var(--straw);border-radius:8px;padding:8px 18px;margin:8px 0 12px;min-height:64px;display:flex;align-items:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.r-detail{font-size:14.5px;color:#cfe0ee;line-height:1.55;min-height:42px}
+.r-detail b{color:var(--paper)}
+.r-detail .badge{display:inline-block;font-family:var(--disp);font-size:12px;letter-spacing:.1em;padding:2px 9px;border-radius:5px;border:2px solid var(--ink);margin-right:6px}
+.spin-col{display:flex;flex-direction:column;align-items:center;gap:12px}
+.spin-col .hint{font-family:var(--disp);font-size:13px;letter-spacing:.08em;color:#9fc0d8;text-align:center;max-width:140px}
+.tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:26px}
+.tab{font-family:var(--disp);font-size:16px;letter-spacing:.05em;padding:8px 18px;border:3px solid var(--ink);border-radius:30px;background:var(--deep);color:var(--paper);box-shadow:4px 4px 0 var(--ink);transition:transform .12s,box-shadow .12s,background .12s,color .12s}
+.tab:hover{transform:translate(-1px,-1px)}
+.tab.active{background:var(--straw);color:var(--ink)}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:22px}
+.fruit{background:var(--panel);border:3px solid var(--ink);border-radius:12px;padding:18px;box-shadow:6px 6px 0 var(--ink);transition:transform .2s,box-shadow .2s;animation:pop .4s both}
+@keyframes pop{from{opacity:0;transform:scale(.85) translateY(14px)}to{opacity:1;transform:none}}
+.fruit:hover{transform:translate(-3px,-3px);box-shadow:10px 10px 0 var(--ink)}
+.f-swirl{width:64px;height:64px;border-radius:50%;border:3px solid var(--ink);margin-bottom:12px;position:relative;overflow:hidden;background:radial-gradient(circle at 36% 30%,var(--tc),#16314d);box-shadow:inset 0 0 0 3px rgba(0,0,0,.25)}
+.f-swirl::before{content:"";position:absolute;inset:0;background:repeating-radial-gradient(circle at 50% 50%,rgba(255,255,255,.5) 0 2px,transparent 2px 8px)}
+.f-swirl::after{content:"";position:absolute;top:-7px;left:50%;width:5px;height:14px;background:#3f8f3a;border:2px solid var(--ink);border-radius:4px;transform:translateX(-50%) rotate(18deg)}
+.f-type{display:inline-block;font-family:var(--disp);font-size:12px;letter-spacing:.1em;padding:3px 10px;border-radius:5px;border:2px solid var(--ink);color:var(--ink);background:var(--tc);margin-bottom:8px}
+.fruit h3{font-family:var(--disp);font-size:22px;letter-spacing:.02em;line-height:1;color:var(--paper)}
+.f-user{font-family:var(--disp);font-size:12px;letter-spacing:.08em;color:var(--teal);margin:6px 0 8px}
+.f-power{font-size:13.5px;line-height:1.5;color:#bcd2e3}
+
+/* ---------- VOYAGE MAP ---------- */
+.voy-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:34px;align-items:center}
+.map-card{background:linear-gradient(180deg,#0a3358,#072038);border:4px solid var(--ink);border-radius:14px;padding:14px;box-shadow:8px 8px 0 var(--ink)}
+.map-card svg{display:block;width:100%;height:auto}
+.map-cap{display:flex;justify-content:space-between;font-family:var(--disp);font-size:13px;letter-spacing:.08em;color:#9fc0d8;padding:10px 6px 2px}
+.map-cap i{color:var(--teal)}
+.stop-dot{fill:var(--deep);stroke:var(--straw);stroke-width:3;transition:fill .3s,r .3s}
+.stop-dot.on{fill:var(--straw)}
+.stop-lbl{font-family:var(--body);font-weight:700;font-size:12px;fill:#cfe0ee}
+.route-line{fill:none;stroke:rgba(95,212,230,.25);stroke-width:5;stroke-linecap:round}
+.route-dash{fill:none;stroke:var(--teal);stroke-width:3;stroke-linecap:round;stroke-dasharray:2 12;animation:dashmove 24s linear infinite}
+@keyframes dashmove{to{stroke-dashoffset:-280}}
+.approach{background:var(--panel);border:4px solid var(--ink);border-radius:14px;padding:26px;box-shadow:8px 8px 0 var(--ink)}
+.approach .a-lbl{font-family:var(--disp);font-size:14px;letter-spacing:.16em;color:var(--teal);display:flex;align-items:center;gap:8px}
+.approach .a-name{font-family:var(--disp);font-size:clamp(34px,4vw,52px);color:var(--straw);-webkit-text-stroke:1px var(--ink);text-shadow:4px 4px 0 var(--ink);line-height:.95;margin:8px 0}
+.approach .a-arc{font-size:15px;color:#cfe0ee;line-height:1.5}
+.approach .a-bar{height:14px;background:var(--ink);border:2px solid var(--ink);border-radius:8px;margin-top:20px;overflow:hidden}
+.approach .a-fill{height:100%;width:0;background:repeating-linear-gradient(45deg,var(--straw) 0 10px,var(--straw-d) 10px 20px);transition:width .15s}
+.approach .a-pct{font-family:var(--disp);font-size:14px;letter-spacing:.08em;color:#9fc0d8;margin-top:8px}
+.voy-hint{font-family:var(--disp);font-size:14px;letter-spacing:.06em;color:#9fc0d8;margin-top:18px;display:flex;align-items:center;gap:8px}
+
+/* ---------- QUOTES ---------- */
+.quotes{background:radial-gradient(80% 120% at 50% 0%,#103a63,var(--abyss));text-align:center}
+.bubble{position:relative;max-width:880px;margin:0 auto;background:var(--paper);color:var(--ink);border:4px solid var(--ink);border-radius:24px;padding:42px 40px;box-shadow:10px 10px 0 var(--ink);transition:opacity .35s,transform .35s}
+.bubble.qfade{opacity:0;transform:translateY(10px)}
+.bubble::after{content:"";position:absolute;left:60px;bottom:-26px;width:34px;height:34px;background:var(--paper);border-right:4px solid var(--ink);border-bottom:4px solid var(--ink);transform:rotate(45deg)}
+.bubble .q-text{font-family:var(--disp);font-size:clamp(28px,4.4vw,52px);line-height:1.02;letter-spacing:.01em}
+.bubble .q-who{font-family:var(--pirate);font-size:24px;color:var(--red-d);margin-top:16px}
+.q-dots{display:flex;gap:12px;justify-content:center;margin-top:40px}
+.q-dots button{width:14px;height:14px;border-radius:50%;border:3px solid var(--ink);background:var(--deep);transition:background .2s,transform .2s}
+.q-dots button.on{background:var(--straw);transform:scale(1.2)}
+
+/* ---------- CTA ---------- */
+.cta{background:var(--red);position:relative;overflow:hidden;border-top:4px solid var(--ink);border-bottom:4px solid var(--ink)}
+.cta::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.08) 1.4px,transparent 1.5px);background-size:18px 18px}
+.cta-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:48px;align-items:center;position:relative}
+.cta h2{font-size:clamp(44px,6.6vw,86px);color:var(--paper);-webkit-text-stroke:2px var(--ink);text-shadow:6px 6px 0 var(--ink)}
+.cta p{font-size:16px;line-height:1.6;color:#ffe9ea;max-width:460px;margin:18px 0 26px}
+.join-form{display:flex;gap:12px;flex-wrap:wrap}
+.join-form input{flex:1;min-width:220px;font-family:var(--body);font-size:16px;font-weight:700;padding:13px 16px;border:3px solid var(--ink);border-radius:10px;background:var(--paper);color:var(--ink);box-shadow:5px 5px 0 var(--ink)}
+.join-form input:focus{outline:none;border-color:var(--straw)}
+.join-done{display:none}
+.join-done.show{display:block}
+.join-done .stamp2{display:inline-block;font-family:var(--disp);font-size:clamp(26px,4vw,42px);letter-spacing:.04em;color:var(--paper);border:5px solid var(--paper);border-radius:12px;padding:10px 22px;transform:rotate(-7deg);background:rgba(0,0,0,.18);animation:stampIn .7s cubic-bezier(.2,1.4,.4,1)}
+.flag-card{width:230px;height:230px;margin-left:auto;background:var(--paper);border:4px solid var(--ink);border-radius:14px;box-shadow:10px 10px 0 var(--ink);transform:rotate(5deg);overflow:hidden;display:grid;place-items:center;position:relative;transition:transform .3s}
+.flag-card:hover{transform:rotate(-3deg) scale(1.03)}
+.flag-card .fb{font-size:120px;line-height:1;filter:drop-shadow(2px 2px 0 var(--ink))}
+.flag-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:14px}
+
+/* ---------- FOOTER ---------- */
+footer{background:var(--abyss);padding:70px 0 0;position:relative}
+.foot-wave{position:absolute;top:-1px;left:0;width:100%;height:60px;transform:translateY(-99%)}
+.foot-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:40px;padding-bottom:54px}
+.foot-brand .logo{width:54px;height:54px}
+.foot-brand p{color:#9fc0d8;font-size:14.5px;line-height:1.6;max-width:280px;margin:16px 0 18px}
+.foot-flag{width:64px;height:64px;background:var(--paper);border:3px solid var(--ink);border-radius:10px;display:grid;place-items:center;position:relative;overflow:hidden}
+.foot-flag .fb{font-size:38px}
+.foot-flag img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:6px}
+.foot-grid h5{font-family:var(--disp);font-size:16px;letter-spacing:.1em;color:var(--straw);margin-bottom:16px}
+.foot-grid a{display:block;font-size:14.5px;color:#bcd2e3;padding:5px 0;transition:color .2s,transform .2s}
+.foot-grid a:hover{color:var(--straw);transform:translateX(4px)}
+.foot-bottom{border-top:3px solid var(--ink);padding:22px 0;display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;font-size:13px;color:#7e97ab}
+.foot-bottom .disc{max-width:560px;font-style:italic}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .6s ease,transform .6s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* ---------- responsive ---------- */
+@media (max-width:980px){
+  .hero-grid,.voy-grid,.cta-grid{grid-template-columns:1fr}
+  .wanted{margin:0 auto}
+  .flag-card{margin:0 auto}
+  .roulette{grid-template-columns:1fr;text-align:center;justify-items:center}
+  .r-fruit{margin:0 auto}
+  .spin-col{flex-direction:row;flex-wrap:wrap;justify-content:center}
+}
+@media (max-width:820px){
+  .nav-links,.nav-cta .btn{display:none}
+  .menu-btn{display:block}
+  .mobile.open{display:flex;flex-direction:column;position:absolute;top:68px;left:0;right:0;background:var(--deep);border-bottom:3px solid var(--ink);padding:14px 4vw 22px;gap:4px}
+  .mobile a{font-family:var(--disp);font-size:20px;letter-spacing:.05em;padding:12px 0;border-bottom:2px dashed rgba(255,255,255,.12)}
+  .foot-grid{grid-template-columns:1fr 1fr}
+}
+@media (max-width:560px){
+  .sec{padding:70px 0}
+  .foot-grid{grid-template-columns:1fr}
+  .bubble{padding:30px 22px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+  .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<!-- NAV -->
+<header class="nav" id="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="#top">
+      <span class="logo">
+        <svg viewBox="0 0 100 70" aria-hidden="true"><ellipse cx="50" cy="52" rx="44" ry="12" fill="#FFD23F" stroke="#0E141B" stroke-width="3"/><path d="M26 50 C26 26 38 14 50 14 C62 14 74 26 74 50 Z" fill="#FFD23F" stroke="#0E141B" stroke-width="3"/><path d="M27 44 C36 50 64 50 73 44 L73 50 C64 56 36 56 27 50 Z" fill="#E63946" stroke="#0E141B" stroke-width="2.5"/></svg>
+        <img src="straw-hat.png" alt="" onerror="this.style.display='none'">
+      </span>
+      <b>STRAW HAT <span>HQ</span></b>
+    </a>
+    <nav class="nav-links">
+      <a href="#crew">Crew</a>
+      <a href="#fruits">Devil Fruits</a>
+      <a href="#voyage">Voyage</a>
+      <a href="#quotes">Quotes</a>
+    </nav>
+    <div class="nav-cta">
+      <a class="btn btn-y btn-sm" href="#join">Join the Crew</a>
+      <button class="menu-btn" id="menuBtn" aria-label="Menu">☰</button>
+    </div>
+  </div>
+  <div class="mobile" id="mobile">
+    <a href="#crew">Crew</a><a href="#fruits">Devil Fruits</a><a href="#voyage">Voyage</a><a href="#quotes">Quotes</a><a href="#join">Join the Crew</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="sunburst"></div>
+    <div class="wrap hero-grid">
+      <div class="hero-copy reveal">
+        <span class="route-tag"><span class="wobble">🧭</span> LOG POSE LOCKED — NEXT STOP: LAUGH TALE</span>
+        <h1 class="disp hero-h"><small>SET SAIL FOR</small>THE <span class="y">GRAND LINE!</span></h1>
+        <p class="lede">A fan‑made voyage hub for the world's greatest pirate saga — <b>crew bounties, Devil Fruit intel, and the route to the One Piece</b>, all stitched into a single log. Raise the anchor.</p>
+        <div class="hero-btns">
+          <a class="btn btn-y" href="#crew">Meet the Crew ☠</a>
+          <a class="btn btn-g" href="#fruits">Spin a Devil Fruit</a>
+        </div>
+        <div class="hero-stats">
+          <span><b>10</b> STRAW HATS</span>
+          <span><b>12</b> FRUITS INDEXED</span>
+          <span><b>1</b> PROMISED TREASURE</span>
+        </div>
+      </div>
+
+      <div class="hero-poster reveal">
+        <div class="wanted">
+          <div class="w-stamp">MARINE HQ</div>
+          <div class="w-top">WANTED</div>
+          <div class="w-sub">DEAD OR ALIVE</div>
+          <div class="w-photo">
+            <svg viewBox="0 0 100 70" aria-hidden="true"><ellipse cx="50" cy="52" rx="44" ry="12" fill="#FFD23F" stroke="#0E141B" stroke-width="3"/><path d="M26 50 C26 26 38 14 50 14 C62 14 74 26 74 50 Z" fill="#FFD23F" stroke="#0E141B" stroke-width="3"/><path d="M27 44 C36 50 64 50 73 44 L73 50 C64 56 36 56 27 50 Z" fill="#E63946" stroke="#0E141B" stroke-width="2.5"/></svg>
+            <img src="straw-hat.png" alt="Straw hat" onerror="this.style.display='none'">
+          </div>
+          <div class="w-name">MONKEY D. LUFFY</div>
+          <div class="w-epi">"Straw Hat" — Captain</div>
+          <div class="w-blabel"><i></i> CURRENT BOUNTY · LIVE</div>
+          <div class="w-bounty" id="bounty">₿0</div>
+          <div class="compass">🧭</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="waves" aria-hidden="true">
+      <div class="wave w1"><svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path d="M0,60 C120,90 240,30 360,60 C480,90 600,30 720,60 C840,90 960,30 1080,60 C1200,90 1320,30 1440,60 L1440,120 L0,120 Z" fill="#5FD4E6"/></svg></div>
+      <div class="wave w2"><svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path d="M0,60 C120,90 240,30 360,60 C480,90 600,30 720,60 C840,90 960,30 1080,60 C1200,90 1320,30 1440,60 L1440,120 L0,120 Z" fill="#0B2C4A"/></svg></div>
+      <div class="wave w3"><svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path d="M0,60 C120,90 240,30 360,60 C480,90 600,30 720,60 C840,90 960,30 1080,60 C1200,90 1320,30 1440,60 L1440,120 L0,120 Z" fill="#E63946"/></svg></div>
+    </div>
+  </section>
+
+  <!-- TICKER -->
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track" id="tickerTrack"></div>
+  </div>
+
+  <!-- CREW -->
+  <section class="sec alt" id="crew">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div>
+          <span class="tag">THE BOUNTY BOARD</span>
+          <h2 class="disp">THE STRAW HAT <span class="y">PIRATES</span></h2>
+        </div>
+        <p class="side">Ten nakama, one dream. Every head carries a price from the World Government — <b>hover a poster to straighten it, click to stamp it.</b></p>
+      </div>
+      <div class="board-wrap reveal">
+        <div class="board" id="board"></div>
+        <div class="board-nav" style="position:absolute;top:-58px;right:0">
+          <button id="prevB" aria-label="Previous">‹</button>
+          <button id="nextB" aria-label="Next">›</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEVIL FRUITS -->
+  <section class="sec dark" id="fruits">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div>
+          <span class="tag">SEA PRISM INDEX</span>
+          <h2 class="disp">DEVIL FRUIT <span class="y">CATALOG</span></h2>
+        </div>
+        <p class="side">Cursed power for the price of the sea. Filter by class, or <b>let fate hand you a fruit</b> with the roulette below.</p>
+      </div>
+
+      <div class="roulette reveal">
+        <div class="r-fruit">
+          <div class="swirl"></div>
+          <img src="devil-fruit.png" alt="Devil fruit" onerror="this.style.display='none'">
+        </div>
+        <div class="r-mid">
+          <div class="r-label">FEELING LUCKY, PIRATE?</div>
+          <div class="r-slot" id="slotName">— press SPIN —</div>
+          <div class="r-detail" id="slotDetail">One bite and the ocean rejects you forever. Worth it.</div>
+        </div>
+        <div class="spin-col">
+          <button class="btn btn-r" id="spinBtn">🎲 SPIN</button>
+          <span class="hint">random fruit from the index</span>
+        </div>
+      </div>
+
+      <div class="tabs reveal" id="tabs">
+        <button class="tab active" data-f="All">All</button>
+        <button class="tab" data-f="Paramecia">Paramecia</button>
+        <button class="tab" data-f="Zoan">Zoan</button>
+        <button class="tab" data-f="Logia">Logia</button>
+      </div>
+      <div class="fgrid" id="fgrid"></div>
+    </div>
+  </section>
+
+  <!-- VOYAGE -->
+  <section class="sec alt" id="voyage">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div>
+          <span class="tag">ETERNAL POSE</span>
+          <h2 class="disp">THE VOYAGE <span class="y">SO FAR</span></h2>
+        </div>
+        <p class="side">From Reverse Mountain to the edge of the world. <b>Scroll — the Thousand Sunny sails the route with you.</b></p>
+      </div>
+      <div class="voy-grid reveal">
+        <div class="map-card">
+          <svg id="mapSvg" viewBox="0 0 1000 300" role="img" aria-label="Grand Line voyage map">
+            <path class="route-line" id="routeLine" d="M 25 230 C 90 90, 170 260, 250 170 C 320 95, 380 240, 460 180 C 540 120, 570 70, 650 120 C 730 170, 760 250, 840 200 C 900 165, 940 120, 975 75"/>
+            <path class="route-dash" d="M 25 230 C 90 90, 170 260, 250 170 C 320 95, 380 240, 460 180 C 540 120, 570 70, 650 120 C 730 170, 760 250, 840 200 C 900 165, 940 120, 975 75"/>
+            <g id="stops"></g>
+            <g id="ship">
+              <path d="M-15 4 Q0 13 15 4 L11 -3 L-11 -3 Z" fill="#8B5A2B" stroke="#0E141B" stroke-width="2"/>
+              <line x1="0" y1="-3" x2="0" y2="-22" stroke="#0E141B" stroke-width="2"/>
+              <path d="M0 -21 L0 -5 L13 -5 Z" fill="#FFF6E5" stroke="#0E141B" stroke-width="2"/>
+              <path d="M0 -21 L7 -18 L0 -15 Z" fill="#E63946"/>
+            </g>
+          </svg>
+          <div class="map-cap"><span>GRAND LINE · PARADISE → NEW WORLD</span><span><i>●</i> THOUSAND SUNNY</span></div>
+        </div>
+        <div class="approach">
+          <div class="a-lbl">🧭 NOW APPROACHING</div>
+          <div class="a-name" id="approach">Reverse Mountain</div>
+          <div class="a-arc" id="approachArc">Where the Grand Line begins.</div>
+          <div class="a-bar"><div class="a-fill" id="aFill"></div></div>
+          <div class="a-pct" id="aPct">LOG PROGRESS 0%</div>
+        </div>
+      </div>
+      <div class="voy-hint reveal">↕ SCROLL THROUGH THIS SECTION TO SAIL THE ROUTE</div>
+    </div>
+  </section>
+
+  <!-- QUOTES -->
+  <section class="sec quotes" id="quotes">
+    <div class="wrap">
+      <div class="sec-head reveal" style="justify-content:center;text-align:center;flex-direction:column;align-items:center">
+        <span class="tag">WORDS TO LIVE BY</span>
+        <h2 class="disp">QUOTES FROM <span class="y">THE SEA</span></h2>
+      </div>
+      <div class="bubble reveal" id="bubble">
+        <div class="q-text" id="qText">ONE PIECE IS REAL!</div>
+        <div class="q-who" id="qWho">— Edward Newgate, at Marineford</div>
+      </div>
+      <div class="q-dots" id="qDots"></div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta" id="join">
+    <div class="wrap cta-grid" style="padding:84px 0">
+      <div class="reveal">
+        <h2 class="disp">YOUR ADVENTURE<br>STARTS NOW.</h2>
+        <p>Join the crew and get voyage logs, bounty alerts, and chapter drops straight to your inbox. No Marines, no spam — just the open sea.</p>
+        <form class="join-form" id="joinForm">
+          <input type="email" required placeholder="your@logpose.sea" aria-label="Email">
+          <button class="btn btn-y" type="submit">Join the Crew</button>
+        </form>
+        <div class="join-done" id="joinDone"><span class="stamp2">🏴‍️ WELCOME ABOARD, NAKAMA!</span></div>
+      </div>
+      <div class="reveal">
+        <div class="flag-card">
+          <span class="fb">☠</span>
+          <img src="jolly-roger.png" alt="Straw Hat jolly roger" onerror="this.style.display='none'">
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <svg class="foot-wave" viewBox="0 0 1440 60" preserveAspectRatio="none" aria-hidden="true"><path d="M0,30 C120,55 240,5 360,30 C480,55 600,5 720,30 C840,55 960,5 1080,30 C1200,55 1320,5 1440,30 L1440,60 L0,60 Z" fill="#051529"/></svg>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <div style="display:flex;align-items:center;gap:14px">
+          <span class="foot-flag"><span class="fb">☠</span><img src="jolly-roger.png" alt="" onerror="this.style.display='none'"></span>
+          <b class="disp" style="font-size:26px;color:var(--straw)">STRAW HAT HQ</b>
+        </div>
+        <p>A fan‑made voyage hub celebrating the greatest adventure ever drawn. The sea is wide — and we're just getting started.</p>
+        <div style="font-family:var(--disp);letter-spacing:.08em;color:var(--teal)">⚓ ALL CREW ACCOUNTED FOR</div>
+      </div>
+      <div><h5>SAIL WITH US</h5><a href="#crew">The Crew</a><a href="#fruits">Devil Fruits</a><a href="#voyage">Voyage Map</a><a href="#quotes">Quotes</a></div>
+      <div><h5>EXPLORE</h5><a href="#">East Blue Saga</a><a href="#">Alabasta Saga</a><a href="#">Marineford War</a><a href="#">Wano Country</a></div>
+      <div><h5>THE GAZETTE</h5><a href="#">Bounty Updates</a><a href="#">Chapter Drops</a><a href="#">Crew Theories</a><a href="#join">Newsletter</a></div>
+    </div>
+  </div>
+  <div class="wrap foot-bottom">
+    <span class="disc">Fan‑made concept. One Piece © Eiichiro Oda / Shueisha, Toei Animation. No affiliation, and — thankfully — no bounty on this page.</span>
+    <span>© 2026 STRAW HAT HQ · BUILT BY NAKAMA</span>
+  </div>
+</footer>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const fmtB=n=>'₿'+n.toLocaleString('en-US');
+const HATSVG='<svg viewBox="0 0 100 70" aria-hidden="true"><ellipse cx="50" cy="52" rx="44" ry="12" fill="#FFD23F" stroke="#0E141B" stroke-width="3"/><path d="M26 50 C26 26 38 14 50 14 C62 14 74 26 74 50 Z" fill="#FFD23F" stroke="#0E141B" stroke-width="3"/><path d="M27 44 C36 50 64 50 73 44 L73 50 C64 56 36 56 27 50 Z" fill="#E63946" stroke="#0E141B" stroke-width="2.5"/></svg>';
+
+/* ---------- DATA ---------- */
+const CREW=[
+ {n:"Monkey D. Luffy",r:"Captain",b:3000000000,e:'"Straw Hat"',c:"#E63946",i:"L",cap:true},
+ {n:"Roronoa Zoro",r:"Swordsman",b:1111000000,e:'"Pirate Hunter"',c:"#2E7D32",i:"Z"},
+ {n:"Nami",r:"Navigator",b:366000000,e:'"Cat Burglar"',c:"#F4842D",i:"N"},
+ {n:"Usopp",r:"Sniper",b:500000000,e:'"God" Usopp',c:"#C9A227",i:"U"},
+ {n:"Vinsmoke Sanji",r:"Cook",b:1032000000,e:'"Black Leg"',c:"#1F4E8C",i:"S"},
+ {n:"Tony Tony Chopper",r:"Doctor",b:1000,e:'"Cotton Candy Lover"',c:"#E58BA3",i:"C"},
+ {n:"Nico Robin",r:"Archaeologist",b:930000000,e:'"Devil Child"',c:"#6A4C93",i:"R"},
+ {n:"Franky",r:"Shipwright",b:394000000,e:'"Iron Man"',c:"#2AA8A0",i:"F"},
+ {n:"Brook",r:"Musician",b:383000000,e:'"Soul King"',c:"#8B8FA3",i:"B"},
+ {n:"Jinbe",r:"Helmsman",b:1100000000,e:'"Knight of the Sea"',c:"#274690",i:"J"},
+];
+const TYPECOL={Paramecia:"#E63946",Zoan:"#FFD23F",Logia:"#5FD4E6"};
+const FRUITS=[
+ {n:"Gomu Gomu no Mi",a:"Hito Hito no Mi, Model: Nika",t:"Zoan",u:"Monkey D. Luffy",p:"A rubber body — that awakens as the Sun God Nika."},
+ {n:"Mera Mera no Mi",t:"Logia",u:"Portgas D. Ace / Sabo",p:"Create, control, and become living flame."},
+ {n:"Ope Ope no Mi",t:"Paramecia",u:"Trafalgar Law",p:"The ultimate fruit: a spherical Room of total control."},
+ {n:"Gura Gura no Mi",t:"Paramecia",u:"Edward Newgate",p:"Quakes strong enough to shatter the world."},
+ {n:"Yami Yami no Mi",t:"Logia",u:"Marshall D. Teach",p:"Darkness that swallows all — even Devil Fruit powers."},
+ {n:"Hana Hana no Mi",t:"Paramecia",u:"Nico Robin",p:"Bloom limbs on any surface you can see."},
+ {n:"Suna Suna no Mi",t:"Logia",u:"Crocodile",p:"Become and command the desert's sand."},
+ {n:"Hito Hito no Mi",t:"Zoan",u:"Tony Tony Chopper",p:"Human form; Rumble Balls unlock extra transformations."},
+ {n:"Yomi Yomi no Mi",t:"Paramecia",u:"Brook",p:"Return to life once after death — then wield your soul."},
+ {n:"Uo Uo no Mi, Model: Seiryu",t:"Zoan",u:"Kaido",p:"Mythical azure dragon — flame clouds and storms."},
+ {n:"Soru Soru no Mi",t:"Paramecia",u:"Charlotte Linlin",p:"Steal and shape souls into living homies."},
+ {n:"Pika Pika no Mi",t:"Logia",u:"Borsalino",p:"Move and strike at the speed of light."},
+];
+const STOPS=[
+ {n:"Reverse Mountain",a:"Where the Grand Line begins.",f:0.02},
+ {n:"Whiskey Peak",a:"A town of bounty hunters in disguise.",f:0.13},
+ {n:"Drum Island",a:"A doctor joins the crew.",f:0.24},
+ {n:"Alabasta",a:"A kingdom saved from the shadows.",f:0.35},
+ {n:"Skypiea",a:"A golden city above the clouds.",f:0.46},
+ {n:"Water 7",a:"The city of water and shipwrights.",f:0.57},
+ {n:"Enies Lobby",a:"War declared on the World Government.",f:0.67},
+ {n:"Sabaody",a:"The archipelago that split the crew.",f:0.77},
+ {n:"Wano",a:"The land of samurai, sealed from the world.",f:0.88},
+ {n:"Laugh Tale",a:"The final island. The One Piece waits.",f:0.98},
+];
+const QUOTES=[
+ {q:"ONE PIECE IS REAL!",w:"— Edward Newgate, at Marineford"},
+ {q:"I don't want to conquer anything. The freest person on the sea — that's the Pirate King.",w:"— Monkey D. Luffy"},
+ {q:"When do you think people die? It's when they are forgotten.",w:"— Dr. Hiriluk"},
+ {q:"People's dreams… have no end!",w:"— Marshall D. Teach"},
+ {q:"Nothing happened.",w:"— Roronoa Zoro"},
+];
+
+/* ---------- TICKER ---------- */
+const tt=$('#tickerTrack');
+const tickHTML=CREW.map(c=>`<span>${c.n.toUpperCase()} <b>${fmtB(c.b)}</b> <em>✦</em></span>`).join('');
+tt.innerHTML=tickHTML+tickHTML;
+
+/* ---------- CREW BOARD ---------- */
+const board=$('#board');
+CREW.forEach((c,idx)=>{
+  const el=document.createElement('article');
+  el.className='poster reveal'+(c.cap?' captain':'');
+  el.style.setProperty('--r',(idx%2?2.4:-2.6)+'deg');
+  el.style.transitionDelay=(idx*55)+'ms';
+  const photo=c.cap?HATSVG+'<img src="straw-hat.png" alt="" onerror="this.style.display=\'none\'">'
+                   :`<span class="ini" style="color:${c.c}">${c.i}</span>`;
+  el.innerHTML=`
+    ${c.cap?'<div class="p-cap">CAPTAIN</div>':''}
+    <div class="p-top">WANTED</div><div class="p-sub">DEAD OR ALIVE</div>
+    <div class="p-photo">${photo}</div>
+    <div class="p-name">${c.n}</div><div class="p-epi">${c.e}</div>
+    <div class="p-role">${c.r.toUpperCase()}</div>
+    <div class="p-bounty">${fmtB(c.b)}</div>
+    <div class="p-stamp"><span>WANTED</span></div>`;
+  el.addEventListener('click',()=>{el.classList.remove('stamped');void el.offsetWidth;el.classList.add('stamped');
+    setTimeout(()=>el.classList.remove('stamped'),1100);});
+  board.appendChild(el);
+});
+$('#prevB').onclick=()=>board.scrollBy({left:-280,behavior:'smooth'});
+$('#nextB').onclick=()=>board.scrollBy({left:280,behavior:'smooth'});
+
+/* ---------- FRUITS ---------- */
+const fgrid=$('#fgrid');
+function renderFruits(filter){
+  fgrid.innerHTML='';
+  FRUITS.filter(f=>filter==='All'||f.t===filter).forEach((f,i)=>{
+    const el=document.createElement('article');
+    el.className='fruit';
+    el.style.setProperty('--tc',TYPECOL[f.t]);
+    el.style.animationDelay=(i*45)+'ms';
+    el.innerHTML=`
+      <div class="f-swirl"></div>
+      <span class="f-type">${f.t.toUpperCase()}</span>
+      <h3>${f.n}</h3>
+      <div class="f-user">USER · ${f.u.toUpperCase()}</div>
+      <p class="f-power">${f.p}</p>`;
+    fgrid.appendChild(el);
+  });
+}
+renderFruits('All');
+$('#tabs').addEventListener('click',e=>{
+  const t=e.target.closest('.tab'); if(!t)return;
+  $$('.tab').forEach(x=>x.classList.remove('active')); t.classList.add('active');
+  renderFruits(t.dataset.f);
+});
+
+/* roulette */
+let spinning=false;
+const slotName=$('#slotName'), slotDetail=$('#slotDetail');
+function showResult(f){
+  slotName.textContent=f.n;
+  slotDetail.innerHTML=`<span class="badge" style="background:${TYPECOL[f.t]}">${f.t.toUpperCase()}</span> <b>${f.u}</b> — ${f.p}`;
+  slotName.style.animation='none'; void slotName.offsetWidth; slotName.style.animation='pop .35s';
+}
+$('#spinBtn').addEventListener('click',()=>{
+  if(spinning)return; spinning=true;
+  if(reduced){showResult(FRUITS[Math.floor(Math.random()*FRUITS.length)]);spinning=false;return;}
+  const dur=1300,t0=performance.now();
+  (function tick(t){
+    slotName.textContent=FRUITS[Math.floor(Math.random()*FRUITS.length)].n;
+    if(t-t0<dur){setTimeout(()=>requestAnimationFrame(tick),55+(t-t0)/dur*110);}
+    else{showResult(FRUITS[Math.floor(Math.random()*FRUITS.length)]);spinning=false;}
+  })(t0);
+});
+
+/* ---------- VOYAGE MAP ---------- */
+const SVGNS='http://www.w3.org/2000/svg';
+const route=$('#routeLine'), stopsG=$('#stops'), ship=$('#ship');
+const len=route.getTotalLength();
+const stopEls=[];
+STOPS.forEach(s=>{
+  const p=route.getPointAtLength(s.f*len);
+  const dot=document.createElementNS(SVGNS,'circle');
+  dot.setAttribute('cx',p.x);dot.setAttribute('cy',p.y);dot.setAttribute('r',7);
+  dot.setAttribute('class','stop-dot');stopsG.appendChild(dot);
+  const lbl=document.createElementNS(SVGNS,'text');
+  lbl.setAttribute('x',p.x);lbl.setAttribute('y',p.y>170?p.y-14:p.y+22);
+  lbl.setAttribute('text-anchor','middle');lbl.setAttribute('class','stop-lbl');
+  lbl.textContent=s.n;stopsG.appendChild(lbl);
+  stopEls.push(dot);
+});
+const voy=$('#voyage'), aName=$('#approach'), aArc=$('#approachArc'), aFill=$('#aFill'), aPct=$('#aPct');
+function updateShip(){
+  const r=voy.getBoundingClientRect();
+  const prog=Math.min(1,Math.max(0,(innerHeight*0.85-r.top)/(r.height+innerHeight*0.3)));
+  const pt=route.getPointAtLength(prog*len);
+  ship.setAttribute('transform',`translate(${pt.x.toFixed(1)},${pt.y.toFixed(1)})`);
+  stopEls.forEach((d,i)=>d.classList.toggle('on',STOPS[i].f<=prog+0.001));
+  let cur=STOPS[0];
+  for(const s of STOPS){if(s.f<=prog+0.001)cur=s;}
+  aName.textContent=cur.n; aArc.textContent=cur.a;
+  aFill.style.width=(prog*100).toFixed(0)+'%';
+  aPct.textContent='LOG PROGRESS '+(prog*100).toFixed(0)+'%';
+}
+addEventListener('scroll',updateShip,{passive:true});
+addEventListener('resize',updateShip);
+updateShip();
+
+/* ---------- QUOTES ---------- */
+const bubble=$('#bubble'), qText=$('#qText'), qWho=$('#qWho'), qDots=$('#qDots');
+let qi=0;
+QUOTES.forEach((_,i)=>{const b=document.createElement('button');b.setAttribute('aria-label','Quote '+(i+1));
+  if(i===0)b.classList.add('on');b.onclick=()=>showQuote(i,true);qDots.appendChild(b);});
+function showQuote(i,manual){
+  qi=i;
+  bubble.classList.add('qfade');
+  setTimeout(()=>{qText.textContent=QUOTES[i].q;qWho.textContent=QUOTES[i].w;
+    bubble.classList.remove('qfade');
+    [...qDots.children].forEach((d,j)=>d.classList.toggle('on',j===i));},300);
+  if(manual){clearInterval(qTimer);qTimer=setInterval(()=>showQuote((qi+1)%QUOTES.length),6000);}
+}
+let qTimer=setInterval(()=>showQuote((qi+1)%QUOTES.length),6000);
+
+/* ---------- BOUNTY COUNT-UP ---------- */
+const bountyEl=$('#bounty'), TARGET=3000000000;
+if(reduced){bountyEl.textContent=fmtB(TARGET);}
+else{
+  const dur=2200,t0=performance.now();
+  (function step(t){const p=Math.min((t-t0)/dur,1),e=1-Math.pow(1-p,3);
+    bountyEl.textContent=fmtB(Math.round(TARGET*e));
+    if(p<1)requestAnimationFrame(step);})(t0);
+}
+
+/* ---------- NAV / PROGRESS / MENU ---------- */
+const nav=$('#nav'), progress=$('#progress');
+addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  progress.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+  nav.classList.toggle('scrolled',h.scrollTop>10);
+},{passive:true});
+const menuBtn=$('#menuBtn'), mobile=$('#mobile');
+menuBtn.onclick=()=>mobile.classList.toggle('open');
+mobile.querySelectorAll('a').forEach(a=>a.onclick=()=>mobile.classList.remove('open'));
+
+/* ---------- JOIN FORM ---------- */
+$('#joinForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  $('#joinForm').style.display='none';
+  $('#joinDone').classList.add('show');
+});
+
+/* ---------- REVEALS ---------- */
+const io=new IntersectionObserver(es=>es.forEach(e=>{
+  if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}
+}),{threshold:.12});
+$$('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
